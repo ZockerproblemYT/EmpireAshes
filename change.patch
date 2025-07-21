@@ -1,0 +1,250 @@
+diff --git a/Assets/Scripts/Units/Unit.cs b/Assets/Scripts/Units/Unit.cs
+index e86c46938845821bb344f1e96268a81329c61554..2e320972fe2fd450d4323756ed1f2505e36a9ac3 100644
+--- a/Assets/Scripts/Units/Unit.cs
++++ b/Assets/Scripts/Units/Unit.cs
+@@ -87,144 +87,157 @@ public class Unit : MonoBehaviour
+         health.SetMaxHealth(unitData.maxHealth);
+     }
+ 
+     private IEnumerator SpawnHealthBarDelayed()
+     {
+         yield return null;
+         GameObject hbGO = Instantiate(healthBarPrefab, transform.position + Vector3.up * 2.2f, Quaternion.identity);
+         spawnedHealthBar = hbGO.GetComponentInChildren<HealthBarUI>();
+         spawnedHealthBar?.Initialize(this, health);
+     }
+ 
+     private void Update()
+     {
+         if (isSelected && Input.GetMouseButtonDown(1))
+             HandleRightClick();
+ 
+         HandleMovement();
+         UpdateWaypointLine();
+         UpdateHealthbar();
+ 
+         if (role == UnitRole.Combat)
+             HandleCombat();
+         else
+             stateHandlers[currentState]?.Invoke();
+     }
+-    public void MoveTo(Vector3 position, bool addWaypoint, GameObject overrideWaypointPrefab = null)
+-{
+-    if (addWaypoint)
++    public void MoveTo(Vector3 position, bool addWaypoint, GameObject overrideWaypointPrefab = null, bool fromQueue = false)
+     {
+-        Debug.Log($"[MoveTo] ➕ Shift-Klick → Wegpunkt: {position}", this);
+-        waypoints.Enqueue(position);
+-        CreateWaypointVisual(position, overrideWaypointPrefab);
+-        OnWaypointAdded?.Invoke(position);
+-        return;
+-    }
++        if (addWaypoint)
++        {
++            Debug.Log($"[MoveTo] ➕ Shift-Klick → Wegpunkt: {position}", this);
++            waypoints.Enqueue(position);
++            GameObject visual = CreateWaypointVisual(position, overrideWaypointPrefab);
++            waypointIndicators.Enqueue(visual);
++            OnWaypointAdded?.Invoke(position);
++            UpdateWaypointLine();
++            return;
++        }
+ 
+-    // Prüfe vorab, ob Ziel auf NavMesh liegt
+-    if (!NavMesh.SamplePosition(position, out NavMeshHit hit, 1f, NavMesh.AllAreas))
+-    {
+-        Debug.LogWarning($"[MoveTo] ❌ Kein gültiger NavMesh-Punkt bei: {position}", this);
+-        return;
+-    }
++        // Prüfe vorab, ob Ziel auf NavMesh liegt
++        if (!NavMesh.SamplePosition(position, out NavMeshHit hit, 1f, NavMesh.AllAreas))
++        {
++            Debug.LogWarning($"[MoveTo] ❌ Kein gültiger NavMesh-Punkt bei: {position}", this);
++            return;
++        }
+ 
+-    Debug.Log($"[MoveTo] 🖱️ Rechtsklick → Bewegung nach: {hit.position}", this);
++        Debug.Log($"[MoveTo] 🖱️ Rechtsklick → Bewegung nach: {hit.position}", this);
+ 
+-    ClearWaypoints();
++        if (!fromQueue)
++        {
++            ClearWaypoints();
++            GameObject visual = CreateWaypointVisual(hit.position, overrideWaypointPrefab);
++            currentIndicator = visual;
++        }
++        else
++        {
++            if (currentIndicator != null)
++                Destroy(currentIndicator);
++            if (waypointIndicators.Count > 0)
++                currentIndicator = waypointIndicators.Dequeue();
++        }
+ 
+-    currentWaypoint = hit.position;
+-    currentTarget = hit.position;
+-    isMoving = true;
++        currentWaypoint = hit.position;
++        currentTarget = hit.position;
++        isMoving = true;
+ 
+-    agent.isStopped = false;
+-    agent.ResetPath();
+-    agent.SetDestination(hit.position);
++        agent.isStopped = false;
++        agent.ResetPath();
++        agent.SetDestination(hit.position);
+ 
+-    UpdateWaypointLine();
++        UpdateWaypointLine();
+ 
+-    Debug.Log($"[MoveTo] ✅ Ziel gesetzt: {hit.position} (Distanz: {Vector3.Distance(transform.position, hit.position):F2})", this);
+-}
++        Debug.Log($"[MoveTo] ✅ Ziel gesetzt: {hit.position} (Distanz: {Vector3.Distance(transform.position, hit.position):F2})", this);
++    }
+ 
+ 
+ private void HandleMovement()
+ {
+     if (!isMoving || agent.pathPending) return;
+ 
+     if (!agent.hasPath || agent.remainingDistance <= agent.stoppingDistance)
+     {
+         float velocity = agent.velocity.magnitude;
+         float distance = Vector3.Distance(transform.position, agent.destination);
+ 
+         if (velocity == 0f || distance <= agent.stoppingDistance + 0.1f)
+         {
+             OnArrivedAtDestination?.Invoke(this);
+ 
+             if (waypoints.Count > 0)
+             {
+                 Vector3 next = waypoints.Dequeue();
+-                MoveTo(next, false);
++                MoveTo(next, false, null, true);
+             }
+             else if (isPatrolling)
+             {
+                 currentPatrolTarget = (currentPatrolTarget == patrolPointA) ? patrolPointB : patrolPointA;
+                 MoveTo(currentPatrolTarget, false);
+             }
+             else
+             {
+                 isMoving = false;
+-                currentWaypoint = null;
++                ClearWaypoints();
+                 lineRenderer.positionCount = 0;
+             }
+         }
+     }
+ }
+ private void SafeSetDestination(Vector3 destination)
+ {
+     if (!agent.isOnNavMesh)
+     {
+         Debug.LogWarning($"[SafeSetDestination] ⚠️ Agent nicht auf NavMesh!", this);
+         return;
+     }
+ 
+     if (NavMesh.SamplePosition(destination, out NavMeshHit hit, 1f, NavMesh.AllAreas))
+     {
+         agent.SetDestination(hit.position);
+         Debug.Log($"[SafeSetDestination] ✅ Setze Ziel: {hit.position}", this);
+     }
+     else
+     {
+         Debug.LogWarning($"[SafeSetDestination] ❌ Kein gültiger Punkt nahe {destination}", this);
+     }
+ }
+ 
+ 
+-private void CreateWaypointVisual(Vector3 pos, GameObject overridePrefab = null)
++private GameObject CreateWaypointVisual(Vector3 pos, GameObject overridePrefab = null)
+ {
+     GameObject visual = overridePrefab != null ? overridePrefab : Instantiate(waypointPrefab, pos, Quaternion.identity);
+     SetWaypointColor(visual);
+-    waypointIndicators.Enqueue(visual);
+-    currentWaypoint = pos;
++    return visual;
+ }
+ 
+ private void UpdateWaypointLine()
+ {
+     if (!isSelected || (currentWaypoint == null && waypoints.Count == 0))
+     {
+         lineRenderer.enabled = false;
+         return;
+     }
+ 
+     List<Vector3> positions = new() { transform.position };
+     if (currentWaypoint.HasValue) positions.Add(currentWaypoint.Value);
+     positions.AddRange(waypoints);
+ 
+     lineRenderer.positionCount = positions.Count;
+     lineRenderer.SetPositions(positions.ToArray());
+     lineRenderer.enabled = true;
+ }
+ 
+     private void HandleRightClick()
+     {
+         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+         if (!Physics.Raycast(ray, out RaycastHit hit, 100f, LayerMask.GetMask("Ground", "Resource", "Selectable"))) return;
+ 
+         bool shift = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+diff --git a/Assets/Scripts/Units/Unit.cs b/Assets/Scripts/Units/Unit.cs
+index e86c46938845821bb344f1e96268a81329c61554..2e320972fe2fd450d4323756ed1f2505e36a9ac3 100644
+--- a/Assets/Scripts/Units/Unit.cs
++++ b/Assets/Scripts/Units/Unit.cs
+@@ -482,50 +495,52 @@ private void UpdateWaypointLine()
+     {
+         agent.ResetPath();
+         currentNode = null;
+         currentDropOff = null;
+         currentRefinery = null;
+ 
+         if (currentSite != null)
+         {
+             currentSite.NotifyWorkerLeft(this);
+             currentSite.RemoveBuilder(this);
+             currentSite = null;
+         }
+ 
+         carriedResources = 0;
+         hasConfirmedArrival = false;
+         currentState = State.Idle;
+         ClearWaypoints();
+     }
+ 
+     private void ClearWaypoints()
+     {
+         waypoints.Clear();
+         foreach (var obj in waypointIndicators)
+             if (obj != null) Destroy(obj);
+         waypointIndicators.Clear();
++        if (currentIndicator != null)
++            Destroy(currentIndicator);
+         currentWaypoint = null;
+         currentIndicator = null;
+         agent.ResetPath();
+         OnWaypointsCleared?.Invoke();
+     }
+ 
+     private bool IsNear(Vector3 pos, float range)
+     {
+         if (NavMesh.SamplePosition(pos, out NavMeshHit hit, range, NavMesh.AllAreas))
+             return Vector3.Distance(transform.position, hit.position) <= range;
+         return false;
+     }
+ 
+     private void FaceTarget(Transform target)
+     {
+         Vector3 dir = (target.position - transform.position).normalized;
+         dir.y = 0;
+         if (dir != Vector3.zero)
+             transform.rotation = Quaternion.LookRotation(dir);
+     }
+ 
+     private DropOffBuilding FindClosestDropOff(Vector3 pos)
+     {
+         DropOffBuilding[] all = FindObjectsByType<DropOffBuilding>(FindObjectsSortMode.None);
+         float bestDist = float.MaxValue;
