@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 567a5c45193278146be64861f7dd451a, type: 3}
+  m_Name: Wehrmacht
+  m_EditorClassIdentifier: 
+  availableBuildings:
+  - {fileID: 11400000, guid: 772ea04129bae4547bf6e1c5aeadf78c, type: 2}
+  - {fileID: 11400000, guid: 102f36cb87b24f34db19b68465272a9d, type: 2}
+  - {fileID: 11400000, guid: 30d5513ed978cee4b88593ebb89054b2, type: 2}
+  factionName: Wehrmacht
+  factionColor: {r: 0.735849, g: 0.70576006, b: 0.21173012, a: 0}
+  startMetal: 10000
+  startOil: 10000
+  startPopulation: 10000
+  availableUnits:
+  - {fileID: 11400000, guid: 0612e153539ea8d48b44b4f9dfa758d6, type: 2}
+  - {fileID: 11400000, guid: 489e844cf0cb3f848bad42fd23e0204a, type: 2}
+  - {fileID: 11400000, guid: 7b03b2eb6a759a246879295c6576393d, type: 2}
+  - {fileID: 11400000, guid: 5e49d2d2db56967429783f3278581e50, type: 2}

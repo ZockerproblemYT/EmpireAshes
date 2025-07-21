@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: c1d22eaa501f3f844860a157c0f84aa1
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - selectionCircle: {fileID: 7728698716586712844, guid: 22a006ede1b55224fb750ac1c8b13d92, type: 3}
+  - waypointPrefab: {fileID: 7799845591406338313, guid: 360d96c153ae17c44ac54b2c5ef6b19d, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

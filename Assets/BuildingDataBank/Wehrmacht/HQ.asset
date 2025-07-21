@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 422cac7dbd980ed439265008699fe741, type: 3}
+  m_Name: HQ
+  m_EditorClassIdentifier: 
+  buildingName: HQ
+  buildingType: 1
+  prefab: {fileID: 3702571563888541682, guid: 365dbfa1996bd1848816311d2b2fddef, type: 3}
+  ghostPrefab: {fileID: 3702571563888541682, guid: dc2a1d7c36a328b428d76d4dffa7b50b, type: 3}
+  constructionPrefab: {fileID: 3702571563888541682, guid: 0c08ea2357a6477468334fa90c43b69f, type: 3}
+  icon: {fileID: 21300000, guid: c2e709437a303c2459187ef0cf0cdeb2, type: 3}
+  maxHealth: 100
+  costMetal: 5
+  costOil: 50
+  costPopulation: 0
+  buildTime: 30
+  description: Hauptquartier
