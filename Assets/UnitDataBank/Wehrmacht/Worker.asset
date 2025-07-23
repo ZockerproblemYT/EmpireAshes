@@ -16,6 +16,7 @@ MonoBehaviour:
   description: Harvest Resources
   unitIcon: {fileID: 21300000, guid: cf1095d6a94ba4c47b4ea5ad0d2b8cb1, type: 3}
   unitPrefab: {fileID: 3964639255575184390, guid: a4e492d67ba4f8247b81026166f38040, type: 3}
+  role: 1
   productionTime: 2
   costMetal: 50
   costOil: 0
@@ -26,6 +27,9 @@ MonoBehaviour:
   attackRate: 1
   visionRange: 7
   isCombatUnit: 0
+  attackType: 0
+  damageType: 0
+  armor: 1
   moveSpeed: 5
   angularSpeed: 120
   acceleration: 8

@@ -16,6 +16,7 @@ MonoBehaviour:
   description: Less HP but do area damage
   unitIcon: {fileID: 21300000, guid: 54fc7e8a6e35e1e409efed5585a17bc6, type: 3}
   unitPrefab: {fileID: 3964639255575184390, guid: 6fda1088a521fd24c8ad8f0dd9012fda, type: 3}
+  role: 0
   productionTime: 5
   costMetal: 100
   costOil: 0
@@ -25,7 +26,10 @@ MonoBehaviour:
   attackDamage: 5
   attackRate: 1
   visionRange: 7
-  isCombatUnit: 0
+  isCombatUnit: 1
+  attackType: 0
+  damageType: 0
+  armor: 1
   moveSpeed: 5
   angularSpeed: 120
   acceleration: 8

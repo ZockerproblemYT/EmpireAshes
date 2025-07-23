@@ -97,20 +97,10 @@ public class UnitSelectionHandler : MonoBehaviour
         if (!Physics.Raycast(ray, out RaycastHit hit))
             return;
 
-        bool shift = Input.GetKey(KeyCode.LeftShift);
-
         if (selectedUnits.Count > 0)
         {
-            // 👉 HINWEIS: Angriff deaktiviert, da SetTargetEnemy nicht (mehr) existiert
             foreach (Unit unit in selectedUnits)
-            {
-                GameObject flag = null;
-
-                if (unit.waypointPrefab != null)
-                    flag = Instantiate(unit.waypointPrefab, hit.point, Quaternion.identity);
-
-                unit.MoveTo(hit.point, shift, flag);
-            }
+                unit.HandleRightClick();
         }
         else if (selectedBuildings.Count == 1)
         {
@@ -213,9 +203,16 @@ public class UnitSelectionHandler : MonoBehaviour
             building.SetSelected(true);
 
             ProductionBuilding pb = building.GetComponent<ProductionBuilding>();
-            if (pb != null && uiManager != null)
+            if (uiManager != null)
             {
-                uiManager.ShowFor(pb);
+                if (selectedBuildings.Count == 1 && pb != null)
+                {
+                    uiManager.ShowFor(pb);
+                }
+                else if (selectedBuildings.Count > 1)
+                {
+                    uiManager.Hide();
+                }
             }
 
             workerUI?.Refresh();

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AI;
 
 [RequireComponent(typeof(Collider))]
 public class MetalNode : MonoBehaviour
@@ -11,12 +12,16 @@ public class MetalNode : MonoBehaviour
     }
 
     public Vector3 GetClosestPoint(Vector3 fromPosition)
-{
-    Collider col = GetComponent<Collider>();
-    if (col != null)
-        return col.ClosestPoint(fromPosition);
+    {
+        if (col == null)
+            col = GetComponent<Collider>();
 
-    return transform.position;
-}
+        Vector3 raw = col != null ? col.ClosestPoint(fromPosition) : transform.position;
+
+        if (NavMesh.SamplePosition(raw, out NavMeshHit hit, 2f, NavMesh.AllAreas))
+            return hit.position;
+
+        return raw;
+    }
 
 }

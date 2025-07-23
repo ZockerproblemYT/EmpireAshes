@@ -67,6 +67,16 @@ public class Unit : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         health = GetComponent<Health>();
         lineRenderer = GetComponent<LineRenderer>();
+
+        // In manchen Prefabs ist der SelectionCircle als Asset referenziert.
+        // Wenn er nicht Teil der Szene ist, versuchen wir das Child zu finden.
+        if (selectionCircle == null || !selectionCircle.scene.IsValid())
+        {
+            Transform found = transform.Find("selectionCircle");
+            if (found != null)
+                selectionCircle = found.gameObject;
+        }
+        selectionCircle?.SetActive(false);
         SetupFromData();
 
         InitWorkerStates();
@@ -97,8 +107,7 @@ public class Unit : MonoBehaviour
 
     private void Update()
     {
-        if (isSelected && Input.GetMouseButtonDown(1))
-            HandleRightClick();
+        // Right-click handling is performed centrally by UnitSelectionHandler
 
         HandleMovement();
         UpdateWaypointLine();
@@ -109,41 +118,53 @@ public class Unit : MonoBehaviour
         else
             stateHandlers[currentState]?.Invoke();
     }
-    public void MoveTo(Vector3 position, bool addWaypoint, GameObject overrideWaypointPrefab = null)
-{
-    if (addWaypoint)
+    public void MoveTo(Vector3 position, bool addWaypoint, GameObject overrideWaypointPrefab = null, bool fromQueue = false)
     {
-        Debug.Log($"[MoveTo] ➕ Shift-Klick → Wegpunkt: {position}", this);
-        waypoints.Enqueue(position);
-        CreateWaypointVisual(position, overrideWaypointPrefab);
-        OnWaypointAdded?.Invoke(position);
-        return;
-    }
+        if (addWaypoint)
+        {
+            Debug.Log($"[MoveTo] ➕ Shift-Klick → Wegpunkt: {position}", this);
+            waypoints.Enqueue(position);
+            GameObject visual = CreateWaypointVisual(position, overrideWaypointPrefab);
+            waypointIndicators.Enqueue(visual);
+            OnWaypointAdded?.Invoke(position);
+            UpdateWaypointLine();
+            return;
+        }
 
     // Prüfe vorab, ob Ziel auf NavMesh liegt
-    if (!NavMesh.SamplePosition(position, out NavMeshHit hit, 1f, NavMesh.AllAreas))
+        if (!NavMesh.SamplePosition(position, out NavMeshHit hit, 4f, NavMesh.AllAreas))
     {
         Debug.LogWarning($"[MoveTo] ❌ Kein gültiger NavMesh-Punkt bei: {position}", this);
         return;
     }
 
-    Debug.Log($"[MoveTo] 🖱️ Rechtsklick → Bewegung nach: {hit.position}", this);
+        Debug.Log($"[MoveTo] 🖱️ Rechtsklick → Bewegung nach: {hit.position}", this);
 
-    ClearWaypoints();
+        if (!fromQueue)
+        {
+            ClearWaypoints();
+            GameObject visual = CreateWaypointVisual(hit.position, overrideWaypointPrefab);
+            currentIndicator = visual;
+        }
+        else
+        {
+            if (currentIndicator != null)
+                Destroy(currentIndicator);
+            if (waypointIndicators.Count > 0)
+                currentIndicator = waypointIndicators.Dequeue();
+        }
 
-    currentWaypoint = hit.position;
-    currentTarget = hit.position;
-    isMoving = true;
+        currentWaypoint = hit.position;
+        currentTarget = hit.position;
+        isMoving = true;
+        agent.isStopped = false;
+        agent.ResetPath();
+        agent.SetDestination(hit.position);
 
-    agent.isStopped = false;
-    agent.ResetPath();
-    agent.SetDestination(hit.position);
+        UpdateWaypointLine();
 
-    UpdateWaypointLine();
-
-    Debug.Log($"[MoveTo] ✅ Ziel gesetzt: {hit.position} (Distanz: {Vector3.Distance(transform.position, hit.position):F2})", this);
-}
-
+        Debug.Log($"[MoveTo] ✅ Ziel gesetzt: {hit.position} (Distanz: {Vector3.Distance(transform.position, hit.position):F2})", this);
+    }
 
 private void HandleMovement()
 {
@@ -161,7 +182,7 @@ private void HandleMovement()
             if (waypoints.Count > 0)
             {
                 Vector3 next = waypoints.Dequeue();
-                MoveTo(next, false);
+                MoveTo(next, false, null, true);
             }
             else if (isPatrolling)
             {
@@ -171,7 +192,7 @@ private void HandleMovement()
             else
             {
                 isMoving = false;
-                currentWaypoint = null;
+                ClearWaypoints();
                 lineRenderer.positionCount = 0;
             }
         }
@@ -185,7 +206,7 @@ private void SafeSetDestination(Vector3 destination)
         return;
     }
 
-    if (NavMesh.SamplePosition(destination, out NavMeshHit hit, 1f, NavMesh.AllAreas))
+    if (NavMesh.SamplePosition(destination, out NavMeshHit hit, 4f, NavMesh.AllAreas))
     {
         agent.SetDestination(hit.position);
         Debug.Log($"[SafeSetDestination] ✅ Setze Ziel: {hit.position}", this);
@@ -197,12 +218,11 @@ private void SafeSetDestination(Vector3 destination)
 }
 
 
-private void CreateWaypointVisual(Vector3 pos, GameObject overridePrefab = null)
+private GameObject CreateWaypointVisual(Vector3 pos, GameObject overridePrefab = null)
 {
     GameObject visual = overridePrefab != null ? overridePrefab : Instantiate(waypointPrefab, pos, Quaternion.identity);
     SetWaypointColor(visual);
-    waypointIndicators.Enqueue(visual);
-    currentWaypoint = pos;
+    return visual;
 }
 
 private void UpdateWaypointLine()
@@ -222,7 +242,7 @@ private void UpdateWaypointLine()
     lineRenderer.enabled = true;
 }
 
-    private void HandleRightClick()
+    public void HandleRightClick()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (!Physics.Raycast(ray, out RaycastHit hit, 100f, LayerMask.GetMask("Ground", "Resource", "Selectable"))) return;
@@ -232,15 +252,15 @@ private void UpdateWaypointLine()
         GameObject obj = hit.collider.gameObject;
 
         GameObject flag = null;
-        if (waypointPrefab)
-        {
-            flag = Instantiate(waypointPrefab, clickPos, Quaternion.identity);
-            flag.layer = LayerMask.NameToLayer("Ignore Raycast");
-            SetWaypointColor(flag);
-        }
 
         if (role == UnitRole.Worker)
         {
+            if (obj.GetComponentInParent<BuildingConstructionSite>() is BuildingConstructionSite site && !site.IsFinished())
+            {
+                AssignToConstruction(site);
+                return;
+            }
+
             if (obj.GetComponentInParent<MetalNode>() is MetalNode node)
             {
                 var drop = FindClosestDropOff(transform.position);
@@ -267,11 +287,20 @@ private void UpdateWaypointLine()
                 CancelWorkerJob();
         }
 
+        if (waypointPrefab)
+        {
+            flag = Instantiate(waypointPrefab, clickPos, Quaternion.identity);
+            flag.layer = LayerMask.NameToLayer("Ignore Raycast");
+            SetWaypointColor(flag);
+        }
+
         MoveTo(clickPos, shift, flag);
     }
 
     private void HandleCombat()
     {
+        if (unitData == null)
+            return;
         if (targetEnemy != null)
         {
             float dist = Vector3.Distance(transform.position, targetEnemy.transform.position);
@@ -310,6 +339,9 @@ private void UpdateWaypointLine()
 
     private IEnumerator AttackRoutine()
     {
+        if (unitData == null)
+            yield break;
+
         agent.isStopped = true;
 
         while (targetEnemy != null)
@@ -398,7 +430,21 @@ private void UpdateWaypointLine()
                     ConfirmArrivalAtConstruction();
             }},
             { State.Building, () => {
-                currentSite?.Build(Time.deltaTime);
+                if (currentSite == null)
+                {
+                    CancelWorkerJob();
+                    return;
+                }
+
+                if (!IsNear(currentSite.GetClosestPoint(transform.position), 2f))
+                {
+                    CancelWorkerJob();
+                }
+                else
+                {
+                    // actual build progress is handled by the construction site
+                    // itself based on active builders
+                }
             }}
         };
     }
@@ -504,6 +550,8 @@ private void UpdateWaypointLine()
         foreach (var obj in waypointIndicators)
             if (obj != null) Destroy(obj);
         waypointIndicators.Clear();
+        if (currentIndicator != null)
+            Destroy(currentIndicator);
         currentWaypoint = null;
         currentIndicator = null;
         agent.ResetPath();
@@ -561,6 +609,15 @@ private void UpdateWaypointLine()
         ownerFaction = faction;
         if (selectionCircle && selectionCircle.TryGetComponent<SpriteRenderer>(out var rend))
             rend.color = faction.factionColor;
+        Renderer[] renderers = GetComponentsInChildren<Renderer>();
+        foreach (Renderer r in renderers)
+        {
+            foreach (Material m in r.materials)
+            {
+                if (m.HasProperty("_Color"))
+                    m.color = faction.factionColor;
+            }
+        }
     }
 
     public void SetSelected(bool selected)

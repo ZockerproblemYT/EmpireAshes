@@ -20,6 +20,9 @@ public class BuildingUIController : MonoBehaviour
     private float lastHpRatio = -1f;
     private string debugBuildingName = "";
 
+    private ProductionBuilding productionBuilding;
+    private Transform buildBarRoot;
+
     void Awake()
     {
         if (hpBar != null)
@@ -35,6 +38,10 @@ public class BuildingUIController : MonoBehaviour
         {
             Debug.LogWarning("❌ BuildProgressBar ist nicht zugewiesen!");
         }
+        else
+        {
+            buildBarRoot = buildProgressBar.transform.parent;
+        }
     }
 
     public void Initialize(Transform target, Building building, BuildingConstructionSite site)
@@ -42,20 +49,17 @@ public class BuildingUIController : MonoBehaviour
         targetTransform = target;
         targetBuilding = building;
         constructionSite = site;
+        productionBuilding = building as ProductionBuilding;
 
         debugBuildingName = targetBuilding != null ? targetBuilding.name : "NULL";
         Debug.Log($"🎯 UI Initialize() für: {debugBuildingName}");
 
         // BuildBar aktivieren, wenn site != null
-        if (buildProgressBar != null)
+        if (buildProgressBar != null && buildBarRoot != null)
         {
-            Transform barRoot = buildProgressBar.transform.parent;
-            if (barRoot != null)
-            {
-                bool show = site != null;
-                barRoot.gameObject.SetActive(show);
-                Debug.Log($"🔧 BuildBar (Parent) sichtbar: {show}");
-            }
+            bool show = site != null;
+            buildBarRoot.gameObject.SetActive(show);
+            Debug.Log($"🔧 BuildBar (Parent) sichtbar: {show}");
         }
 
         // HP-Bar sichtbar machen
@@ -112,15 +116,23 @@ public class BuildingUIController : MonoBehaviour
             if (constructionSite.IsFinished())
             {
                 // Fortschrittsbalken ausblenden
-                Transform barRoot = buildProgressBar.transform.parent;
-                if (barRoot != null)
+                if (buildBarRoot != null)
                 {
-                    barRoot.gameObject.SetActive(false);
+                    buildBarRoot.gameObject.SetActive(false);
                     Debug.Log($"✅ Bau abgeschlossen für {debugBuildingName} – BuildBar deaktiviert.");
                 }
 
                 constructionSite = null;
             }
+        }
+        else if (productionBuilding != null && buildProgressBar != null)
+        {
+            bool producing = productionBuilding.GetQueueLength() > 0;
+            if (buildBarRoot != null)
+                buildBarRoot.gameObject.SetActive(producing);
+
+            if (producing)
+                buildProgressBar.fillAmount = productionBuilding.ProductionProgress;
         }
     }
 }

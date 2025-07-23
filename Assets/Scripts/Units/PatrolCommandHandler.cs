@@ -24,7 +24,8 @@ public class PatrolCommandHandler : MonoBehaviour
         if (awaitingPatrolPoints && Input.GetMouseButtonDown(1)) // Rechte Maustaste
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out RaycastHit hit, 100f, LayerMask.GetMask("Ground")))
+            Debug.DrawRay(ray.origin, ray.direction * 500f, Color.red, 1.5f);
+            if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, LayerMask.GetMask("Ground")))
             {
                 if (pointA == null)
                 {

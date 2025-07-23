@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class BuildingConstructionSite : MonoBehaviour
 {
@@ -37,14 +38,31 @@ public class BuildingConstructionSite : MonoBehaviour
         if (isCompleted || hpBuilding == null) return;
 
         int activeBuilders = 0;
+        List<Unit> toRemove = new();
 
         foreach (Unit unit in arrivedBuilders)
         {
-            if (unit == null) continue;
+            if (unit == null)
+            {
+                toRemove.Add(unit);
+                continue;
+            }
 
-            if (unit.role == UnitRole.Worker && unit.IsBuilding())
+            float dist = Vector3.Distance(unit.transform.position, GetClosestPoint(unit.transform.position));
+            bool builderActive = unit.role == UnitRole.Worker && unit.IsBuilding() && dist <= 2f;
+
+            if (builderActive)
+            {
                 activeBuilders++;
+            }
+            else if (dist > 2f || !unit.IsBuilding())
+            {
+                toRemove.Add(unit);
+            }
         }
+
+        foreach (var u in toRemove)
+            RemoveBuilder(u);
 
         if (activeBuilders > 0)
         {
@@ -176,7 +194,12 @@ public class BuildingConstructionSite : MonoBehaviour
     public Vector3 GetClosestPoint(Vector3 from)
     {
         Collider col = GetComponentInChildren<Collider>();
-        return col != null ? col.ClosestPoint(from) : transform.position;
+        Vector3 raw = col != null ? col.ClosestPoint(from) : transform.position;
+
+        if (NavMesh.SamplePosition(raw, out NavMeshHit hit, 2f, NavMesh.AllAreas))
+            return hit.position;
+
+        return raw;
     }
 
     // 🔎 Public Helper

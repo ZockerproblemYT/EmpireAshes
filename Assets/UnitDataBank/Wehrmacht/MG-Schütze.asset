@@ -16,6 +16,7 @@ MonoBehaviour:
   description: Strong against all Infantry
   unitIcon: {fileID: 21300000, guid: 62826a2346bf11f48b81d07aa8486839, type: 3}
   unitPrefab: {fileID: 3964639255575184390, guid: 12399b03bfde5c148aa99289628f898b, type: 3}
+  role: 0
   productionTime: 5
   costMetal: 120
   costOil: 0
@@ -25,7 +26,10 @@ MonoBehaviour:
   attackDamage: 4
   attackRate: 1
   visionRange: 7
-  isCombatUnit: 0
+  isCombatUnit: 1
+  attackType: 0
+  damageType: 0
+  armor: 1
   moveSpeed: 5
   angularSpeed: 120
   acceleration: 8

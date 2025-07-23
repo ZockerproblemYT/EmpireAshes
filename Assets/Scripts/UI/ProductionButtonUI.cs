@@ -78,14 +78,37 @@ public class ProductionButtonUI : MonoBehaviour
 
     public void OnClickProduce()
     {
-        if (building != null && unitData != null)
+        if (unitData == null)
         {
-            Debug.Log($"🔁 Produktion angestoßen für: {unitData.unitName}");
+            Debug.LogWarning("⚠️ Produktion fehlgeschlagen: UnitData fehlt.");
+            return;
+        }
+
+        var buildings = UnitSelectionHandler.Instance?.SelectedBuildings;
+        bool produced = false;
+
+        if (buildings != null && buildings.Count > 1)
+        {
+            foreach (var b in buildings)
+            {
+                var pb = b.GetComponent<ProductionBuilding>();
+                if (pb != null)
+                {
+                    pb.EnqueueUnit(unitData);
+                    produced = true;
+                }
+            }
+        }
+
+        if (!produced && building != null)
+        {
             building.EnqueueUnit(unitData);
+            produced = true;
         }
+
+        if (produced)
+            Debug.Log($"🔁 Produktion angestoßen für: {unitData.unitName}");
         else
-        {
-            Debug.LogWarning("⚠️ Produktion fehlgeschlagen: Referenzen fehlen.");
-        }
+            Debug.LogWarning("⚠️ Produktion fehlgeschlagen: Keine gültigen Gebäude ausgewählt.");
     }
 }
