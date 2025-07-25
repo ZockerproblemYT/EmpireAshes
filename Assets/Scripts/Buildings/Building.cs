@@ -32,7 +32,6 @@ public class Building : MonoBehaviour
 
     private bool isCompleted = false;
     public bool IsCompleted => isCompleted;
-
     public bool IsSelected => isSelected;
 
     protected virtual void Awake()
@@ -42,6 +41,11 @@ public class Building : MonoBehaviour
 
     protected virtual void Start()
     {
+        if (owner == null)
+        {
+            Debug.LogWarning($"⚠️ Building '{name}' hat keinen Owner. Bitte rufe SetOwner() nach dem Spawn auf!");
+        }
+
         if (IsUnderConstruction)
             return;
 
@@ -70,19 +74,20 @@ public class Building : MonoBehaviour
 
     public void SetHealth(int value)
     {
-        if (!initialized)
-            return;
-
+        if (!initialized) return;
         currentHealth = Mathf.Clamp(value, 0, maxHealth);
     }
 
-    public void SetFullHealth()
-    {
-        SetHealth(maxHealth);
-    }
+    public void SetFullHealth() => SetHealth(maxHealth);
 
     public void SetOwner(Faction faction)
     {
+        if (faction == null)
+        {
+            Debug.LogError($"❌ SetOwner: Fraktion ist NULL für Gebäude {name}");
+            return;
+        }
+
         owner = faction;
 
         Renderer[] renderers = GetComponentsInChildren<Renderer>();
@@ -149,7 +154,6 @@ public class Building : MonoBehaviour
         if (buildingUnderConstructionVisual != null)
             buildingUnderConstructionVisual.SetActive(false);
 
-        // Weitere Logik bei Fertigstellung möglich
         Debug.Log($"🏁 Gebäude '{buildingName}' fertiggestellt.");
     }
 }
