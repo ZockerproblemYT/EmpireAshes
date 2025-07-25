@@ -12,13 +12,9 @@ public class MatchManager : MonoBehaviour
     [Tooltip("Fraktion der KI (wird separat instanziiert)")]
     public Faction aiFaction;
 
-    [Header("Positionen zum Zuweisen von Gebäuden")]
-    public Vector3 playerStartPosition = Vector3.zero;
-    public Vector3 aiStartPosition = new Vector3(50, 0, 50);
-
     public Faction PlayerFaction { get; private set; }
     public Faction AIFaction { get; private set; }
-    public List<Faction> AllFactions { get; private set; } = new();
+    public List<Faction> AllFactions { get; private set; } = new List<Faction>();
 
     private void Awake()
     {
@@ -70,12 +66,14 @@ public class MatchManager : MonoBehaviour
             AIFaction = Instantiate(aiFaction);
             AllFactions.Add(AIFaction);
 
+            // Farbänderung, falls gleich
             if (AIFaction.factionColor == PlayerFaction.factionColor)
             {
                 AIFaction.factionColor = Color.red;
                 Debug.Log("🔴 KI-Farbe wurde zur besseren Unterscheidung auf Rot gesetzt.");
             }
 
+            // Ressourcen für KI setzen
             ResourceManager.Instance.InitializeResources(
                 AIFaction,
                 AIFaction.startMetal,
@@ -88,32 +86,6 @@ public class MatchManager : MonoBehaviour
         else
         {
             Debug.LogWarning("⚠️ Keine KI-Fraktion zugewiesen.");
-        }
-
-        // 🏗️ Gebäude in Szene zuweisen
-        AssignBuildingsToFactions();
-    }
-
-    private void AssignBuildingsToFactions()
-    {
-        foreach (var building in FindObjectsByType<Building>(FindObjectsSortMode.None))
-        {
-            if (building.GetOwner() != null)
-                continue;
-
-            float distToPlayer = Vector3.Distance(building.transform.position, playerStartPosition);
-            float distToAI = AIFaction != null ? Vector3.Distance(building.transform.position, aiStartPosition) : float.MaxValue;
-
-            if (distToPlayer < distToAI)
-            {
-                building.SetOwner(PlayerFaction);
-                Debug.Log($"🏠 Gebäude '{building.name}' wurde Spielerfraktion zugewiesen.");
-            }
-            else if (AIFaction != null)
-            {
-                building.SetOwner(AIFaction);
-                Debug.Log($"🏭 Gebäude '{building.name}' wurde KI-Fraktion zugewiesen.");
-            }
         }
     }
 }

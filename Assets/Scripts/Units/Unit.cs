@@ -32,8 +32,8 @@ public class Unit : MonoBehaviour
     private LineRenderer lineRenderer;
     private bool isSelected = false;
 
-    private Queue<Vector3> waypoints = new();
-    private Queue<GameObject> waypointIndicators = new();
+    private Queue<Vector3> waypoints = new Queue<Vector3>();
+    private Queue<GameObject> waypointIndicators = new Queue<GameObject>();
     private Vector3? currentWaypoint = null;
     private GameObject currentIndicator = null;
     private HealthBarUI spawnedHealthBar;
@@ -230,7 +230,7 @@ private void UpdateWaypointLine()
         return;
     }
 
-    List<Vector3> positions = new() { transform.position };
+        List<Vector3> positions = new List<Vector3> { transform.position };
     if (currentWaypoint.HasValue) positions.Add(currentWaypoint.Value);
     positions.AddRange(waypoints);
 
@@ -404,7 +404,7 @@ private void UpdateWaypointLine()
 
     private void InitWorkerStates()
     {
-        stateHandlers = new()
+        stateHandlers = new Dictionary<State, Action>()
         {
             { State.Idle, () => { } },
             { State.ToResource, () => {
@@ -628,6 +628,7 @@ private void UpdateWaypointLine()
 
     public bool IsSelected => isSelected;
     public bool IsBuilding() => currentState == State.Building;
+    public bool IsIdle() => currentState == State.Idle;
     public bool IsMoving() => agent.hasPath && agent.remainingDistance > agent.stoppingDistance + 0.05f;
     public Faction GetOwnerFaction() => ownerFaction;
 }

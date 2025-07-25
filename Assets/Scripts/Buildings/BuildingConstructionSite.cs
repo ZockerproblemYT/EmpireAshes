@@ -10,8 +10,8 @@ public class BuildingConstructionSite : MonoBehaviour
     public float currentProgress = 0f;
     public float buildTime = 5f;
 
-    private List<Unit> assignedBuilders = new();
-    private HashSet<Unit> arrivedBuilders = new();
+    private List<Unit> assignedBuilders = new List<Unit>();
+    private HashSet<Unit> arrivedBuilders = new HashSet<Unit>();
 
     private bool isCompleted = false;
     private Faction owner;
@@ -133,26 +133,31 @@ public class BuildingConstructionSite : MonoBehaviour
         isCompleted = true;
 
         GameObject built = Instantiate(buildingData.prefab, transform.position, transform.rotation);
-        Building finalBuilding = built.GetComponent<Building>();
+        var buildings = built.GetComponents<Building>();
         Refinery refinery = built.GetComponent<Refinery>();
 
-        if (finalBuilding != null)
+        Building finalBuilding = null;
+        if (buildings.Length > 0)
         {
-            finalBuilding.SetOwner(owner);
-            finalBuilding.SetFullHealth();
-            finalBuilding.MarkAsCompleted();
-
-            if (uiPrefab != null)
+            finalBuilding = buildings[0];
+            foreach (var b in buildings)
             {
-                GameObject uiGO = Instantiate(uiPrefab);
-                BuildingUIController ui = uiGO.GetComponent<BuildingUIController>();
-                if (ui != null)
-                    ui.Initialize(built.transform, finalBuilding, null);
+                b.SetOwner(owner);
+                b.SetFullHealth();
+                b.MarkAsCompleted();
             }
         }
         else
         {
             Debug.LogWarning("⚠️ Finales Gebäude hat kein Building.cs");
+        }
+
+        if (finalBuilding != null && uiPrefab != null)
+        {
+            GameObject uiGO = Instantiate(uiPrefab);
+            BuildingUIController ui = uiGO.GetComponent<BuildingUIController>();
+            if (ui != null)
+                ui.Initialize(built.transform, finalBuilding, null);
         }
 
         if (refinery != null)

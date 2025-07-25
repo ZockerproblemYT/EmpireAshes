@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class SimpleAI : MonoBehaviour
 {
-    [Header("Setup")] 
+    [Header("Setup")]
     public Faction faction;
     public ProductionBuilding hq;
     public ProductionBuilding barracks;
@@ -15,9 +15,9 @@ public class SimpleAI : MonoBehaviour
     public int attackGroupSize = 4;
     public float attackInterval = 30f;
 
-    private readonly List<Unit> units = new();
-    private readonly List<Unit> workers = new();
-    private readonly List<Unit> combatUnits = new();
+    private readonly List<Unit> units = new List<Unit>();
+    private readonly List<Unit> workers = new List<Unit>();
+    private readonly List<Unit> combatUnits = new List<Unit>();
     private float attackTimer;
     private Building playerHQ;
     private bool initialized = false;
@@ -91,7 +91,8 @@ public class SimpleAI : MonoBehaviour
     {
         foreach (var w in workers)
         {
-            if (w.IsMoving() || w.IsBuilding() || w.IsSelected) continue;
+            if (!w.IsIdle() || w.IsMoving() || w.IsBuilding() || w.IsSelected)
+                continue;
 
             if (!TryEnsureHarvest(w))
             {

@@ -19,8 +19,8 @@ public class UnitSelectionHandler : MonoBehaviour
     private WorkerUI workerUI;
     private bool startedOnUI = false;
 
-    private readonly List<Unit> selectedUnits = new();
-    private readonly List<Building> selectedBuildings = new();
+    private readonly List<Unit> selectedUnits = new List<Unit>();
+    private readonly List<Building> selectedBuildings = new List<Building>();
 
     public List<Unit> SelectedUnits => selectedUnits;
     public List<Building> SelectedBuildings => selectedBuildings;

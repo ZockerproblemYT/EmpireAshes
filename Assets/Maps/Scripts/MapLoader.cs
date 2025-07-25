@@ -49,8 +49,10 @@ public class MapLoader : MonoBehaviour
 
             // HQ spawnen
             GameObject hq = Instantiate(hqPrefab, spawnPos, Quaternion.identity);
-            var building = hq.GetComponent<Building>();
-            if (building != null) building.SetOwner(faction);
+            foreach (var bld in hq.GetComponents<Building>())
+            {
+                bld.SetOwner(faction);
+            }
 
             // Worker spawnen
             Vector3 workerSpawn = spawnPos + new Vector3(3f, 0f, 0f);
@@ -76,8 +78,10 @@ public class MapLoader : MonoBehaviour
                 {
                     Vector3 barrackPos = spawnPos + new Vector3(5f, 0f, 2f);
                     barrack = Instantiate(barrackPrefab, barrackPos, Quaternion.identity);
-                    var bld = barrack.GetComponent<Building>();
-                    if (bld != null) bld.SetOwner(faction);
+                    foreach (var bld in barrack.GetComponents<Building>())
+                    {
+                        bld.SetOwner(faction);
+                    }
                 }
 
                 SimpleAI ai = FindFirstObjectByType<SimpleAI>();

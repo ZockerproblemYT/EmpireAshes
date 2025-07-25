@@ -13,7 +13,7 @@ public class ResourceManager : MonoBehaviour
         public int maxPopulation;
     }
 
-    private Dictionary<Faction, ResourceState> factionResources = new();
+    private Dictionary<Faction, ResourceState> factionResources = new Dictionary<Faction, ResourceState>();
 
     private void Awake()
     {

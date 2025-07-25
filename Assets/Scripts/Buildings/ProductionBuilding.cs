@@ -9,7 +9,7 @@ public class ProductionBuilding : Building
     public List<UnitData> availableUnits;
     public Transform spawnPoint;
 
-    private Queue<UnitData> productionQueue = new();
+    private Queue<UnitData> productionQueue = new Queue<UnitData>();
     private float productionTimer;
 
     [Header("Rally Point")]
