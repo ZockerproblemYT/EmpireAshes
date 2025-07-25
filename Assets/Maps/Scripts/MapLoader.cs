@@ -6,6 +6,7 @@ public class MapLoader : MonoBehaviour
 {
     [Header("Prefabs (alle erforderlich)")]
     public GameObject hqPrefab;
+    public GameObject barrackPrefab;
     public GameObject workerPrefab;
     public GameObject metalNodePrefab;
     public GameObject oilNodePrefab;
@@ -25,7 +26,6 @@ public class MapLoader : MonoBehaviour
 
     private IEnumerator WaitForMatchManagerAndLoad()
     {
-        // Warte, bis MatchManager vollständig initialisiert ist
         while (MatchManager.Instance == null || MatchManager.Instance.PlayerFaction == null)
         {
             Debug.Log("⏳ Warte auf MatchManager...");
@@ -38,38 +38,27 @@ public class MapLoader : MonoBehaviour
 
     void LoadMap()
     {
-        Debug.Log("🗺️ LoadMap gestartet");
-
         List<Faction> allFactions = MatchManager.Instance.AllFactions;
         Faction playerFaction = MatchManager.Instance.PlayerFaction;
-
-        if (startPositions.Count == 0)
-        {
-            Debug.LogError("❌ Keine Startpositionen definiert!");
-            return;
-        }
+        Faction aiFaction = MatchManager.Instance.AIFaction;
 
         for (int i = 0; i < startPositions.Count && i < allFactions.Count; i++)
         {
             Vector3 spawnPos = startPositions[i];
             Faction faction = allFactions[i];
 
-            // HQ
+            // HQ spawnen
             GameObject hq = Instantiate(hqPrefab, spawnPos, Quaternion.identity);
             var building = hq.GetComponent<Building>();
             if (building != null) building.SetOwner(faction);
 
-            Debug.Log($"🏠 HQ gespawnt für Fraktion {faction.name} bei {spawnPos}");
-
-            // Worker
+            // Worker spawnen
             Vector3 workerSpawn = spawnPos + new Vector3(3f, 0f, 0f);
-            GameObject worker = Instantiate(workerPrefab, workerSpawn, Quaternion.identity);
-            var unit = worker.GetComponent<Unit>();
+            GameObject workerGO = Instantiate(workerPrefab, workerSpawn, Quaternion.identity);
+            var unit = workerGO.GetComponent<Unit>();
             if (unit != null) unit.SetOwner(faction);
 
-            Debug.Log($"👷 Worker gespawnt für Fraktion {faction.name} bei {workerSpawn}");
-
-            // Kamera zentrieren
+            // Kamera zentrieren auf Spieler
             if (faction == playerFaction)
             {
                 Camera.main.transform.position = new Vector3(
@@ -77,20 +66,54 @@ public class MapLoader : MonoBehaviour
                     Camera.main.transform.position.y,
                     spawnPos.z - 10f
                 );
-                Debug.Log($"🎥 Kamera auf Spieler ausgerichtet bei {spawnPos}");
+            }
+
+            // KI initialisieren
+            if (faction == aiFaction)
+            {
+                GameObject barrack = null;
+                if (barrackPrefab != null)
+                {
+                    Vector3 barrackPos = spawnPos + new Vector3(5f, 0f, 2f);
+                    barrack = Instantiate(barrackPrefab, barrackPos, Quaternion.identity);
+                    var bld = barrack.GetComponent<Building>();
+                    if (bld != null) bld.SetOwner(faction);
+                }
+
+                SimpleAI ai = FindFirstObjectByType<SimpleAI>();
+                if (ai != null)
+                {
+                    ProductionBuilding hqProd = hq.GetComponent<ProductionBuilding>();
+                    ProductionBuilding barrackProd = barrack?.GetComponent<ProductionBuilding>();
+
+                    UnitData workerUnitData = null;
+                    UnitData combatUnitData = null;
+
+                    if (faction.availableUnits != null)
+                    {
+                        foreach (var ud in faction.availableUnits)
+                        {
+                            if (ud.role == UnitRole.Worker)
+                                workerUnitData = ud;
+                            else if (ud.role == UnitRole.Combat && combatUnitData == null)
+                                combatUnitData = ud;
+                        }
+                    }
+
+                    ai.Initialize(faction, hqProd, barrackProd, workerUnitData, combatUnitData);
+                }
             }
         }
 
+        // Ressourcen platzieren
         foreach (var pos in metalNodePositions)
         {
             Instantiate(metalNodePrefab, pos, Quaternion.identity);
-            Debug.Log($"🪓 MetalNode gespawnt bei {pos}");
         }
 
         foreach (var pos in oilNodePositions)
         {
             Instantiate(oilNodePrefab, pos, Quaternion.identity);
-            Debug.Log($"🛢️ OilNode gespawnt bei {pos}");
         }
 
         Debug.Log("✅ Map vollständig geladen.");

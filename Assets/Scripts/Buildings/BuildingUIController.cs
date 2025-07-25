@@ -7,6 +7,7 @@ public class BuildingUIController : MonoBehaviour
     private Transform targetTransform;
     private Building targetBuilding;
     private BuildingConstructionSite constructionSite;
+    private ProductionBuilding productionBuilding;
 
     [Header("UI-Elemente")]
     [SerializeField] private Image hpBar;
@@ -20,8 +21,7 @@ public class BuildingUIController : MonoBehaviour
     private float lastHpRatio = -1f;
     private string debugBuildingName = "";
 
-    private ProductionBuilding productionBuilding;
-    private Transform buildBarRoot;
+    private bool hpVisible = false;
 
     void Awake()
     {
@@ -38,10 +38,13 @@ public class BuildingUIController : MonoBehaviour
         {
             Debug.LogWarning("❌ BuildProgressBar ist nicht zugewiesen!");
         }
-        else
-        {
-            buildBarRoot = buildProgressBar.transform.parent;
-        }
+    }
+
+    public void SetHPVisible(bool visible)
+    {
+        hpVisible = visible;
+        if (hpCanvasGroup != null)
+            hpCanvasGroup.alpha = visible ? 1f : 0f;
     }
 
     public void Initialize(Transform target, Building building, BuildingConstructionSite site)
@@ -49,22 +52,27 @@ public class BuildingUIController : MonoBehaviour
         targetTransform = target;
         targetBuilding = building;
         constructionSite = site;
-        productionBuilding = building as ProductionBuilding;
 
         debugBuildingName = targetBuilding != null ? targetBuilding.name : "NULL";
         Debug.Log($"🎯 UI Initialize() für: {debugBuildingName}");
 
-        // BuildBar aktivieren, wenn site != null
-        if (buildProgressBar != null && buildBarRoot != null)
+        productionBuilding = building as ProductionBuilding;
+
+        if (buildProgressBar != null)
         {
-            bool show = site != null;
-            buildBarRoot.gameObject.SetActive(show);
-            Debug.Log($"🔧 BuildBar (Parent) sichtbar: {show}");
+            Transform barRoot = buildProgressBar.transform.parent;
+            if (barRoot != null)
+            {
+                bool show = site != null ||
+                            (productionBuilding != null && productionBuilding.GetQueueLength() > 0);
+                barRoot.gameObject.SetActive(show);
+                Debug.Log($"🔧 BuildBar (Parent) sichtbar: {show}");
+            }
         }
 
-        // HP-Bar sichtbar machen
+        // HP-Bar anfangs ausblenden
         if (hpCanvasGroup != null)
-            hpCanvasGroup.alpha = 1f;
+            hpCanvasGroup.alpha = hpVisible ? 1f : 0f;
 
         // Y-Offset berechnen
         float colliderHeight = 0f;
@@ -103,36 +111,45 @@ public class BuildingUIController : MonoBehaviour
             if (hpCanvasGroup != null)
             {
                 bool isUnderConstruction = constructionSite != null;
-                bool shouldShowHP = isUnderConstruction || targetBuilding.IsSelected;
+                bool shouldShowHP = isUnderConstruction || hpVisible;
                 hpCanvasGroup.alpha = shouldShowHP ? 1f : 0f;
             }
         }
 
         // === Baufortschritt ===
-        if (constructionSite != null && buildProgressBar != null)
+        if (buildProgressBar != null)
         {
-            buildProgressBar.fillAmount = constructionSite.GetProgress01();
+            Transform barRoot = buildProgressBar.transform.parent;
 
-            if (constructionSite.IsFinished())
+            if (constructionSite != null)
             {
-                // Fortschrittsbalken ausblenden
-                if (buildBarRoot != null)
+                buildProgressBar.fillAmount = constructionSite.GetProgress01();
+
+                if (constructionSite.IsFinished())
                 {
-                    buildBarRoot.gameObject.SetActive(false);
+                    if (barRoot != null)
+                        barRoot.gameObject.SetActive(false);
                     Debug.Log($"✅ Bau abgeschlossen für {debugBuildingName} – BuildBar deaktiviert.");
+                    constructionSite = null;
                 }
-
-                constructionSite = null;
+                else if (barRoot != null && !barRoot.gameObject.activeSelf)
+                {
+                    barRoot.gameObject.SetActive(true);
+                }
             }
-        }
-        else if (productionBuilding != null && buildProgressBar != null)
-        {
-            bool producing = productionBuilding.GetQueueLength() > 0;
-            if (buildBarRoot != null)
-                buildBarRoot.gameObject.SetActive(producing);
-
-            if (producing)
-                buildProgressBar.fillAmount = productionBuilding.ProductionProgress;
+            else if (productionBuilding != null)
+            {
+                if (productionBuilding.GetQueueLength() > 0)
+                {
+                    buildProgressBar.fillAmount = productionBuilding.ProductionProgress;
+                    if (barRoot != null && !barRoot.gameObject.activeSelf)
+                        barRoot.gameObject.SetActive(true);
+                }
+                else if (barRoot != null && barRoot.gameObject.activeSelf)
+                {
+                    barRoot.gameObject.SetActive(false);
+                }
+            }
         }
     }
 }

@@ -68,8 +68,7 @@ public class Unit : MonoBehaviour
         health = GetComponent<Health>();
         lineRenderer = GetComponent<LineRenderer>();
 
-        // In manchen Prefabs ist der SelectionCircle als Asset referenziert.
-        // Wenn er nicht Teil der Szene ist, versuchen wir das Child zu finden.
+        // ensure selection circle exists even if prefab reference lost
         if (selectionCircle == null || !selectionCircle.scene.IsValid())
         {
             Transform found = transform.Find("selectionCircle");
@@ -107,8 +106,6 @@ public class Unit : MonoBehaviour
 
     private void Update()
     {
-        // Right-click handling is performed centrally by UnitSelectionHandler
-
         HandleMovement();
         UpdateWaypointLine();
         UpdateHealthbar();
@@ -192,7 +189,7 @@ private void HandleMovement()
             else
             {
                 isMoving = false;
-                ClearWaypoints();
+                currentWaypoint = null;
                 lineRenderer.positionCount = 0;
             }
         }
@@ -206,7 +203,7 @@ private void SafeSetDestination(Vector3 destination)
         return;
     }
 
-    if (NavMesh.SamplePosition(destination, out NavMeshHit hit, 4f, NavMesh.AllAreas))
+    if (NavMesh.SamplePosition(destination, out NavMeshHit hit, 1f, NavMesh.AllAreas))
     {
         agent.SetDestination(hit.position);
         Debug.Log($"[SafeSetDestination] ✅ Setze Ziel: {hit.position}", this);
@@ -242,7 +239,7 @@ private void UpdateWaypointLine()
     lineRenderer.enabled = true;
 }
 
-    public void HandleRightClick()
+    private void HandleRightClick()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (!Physics.Raycast(ray, out RaycastHit hit, 100f, LayerMask.GetMask("Ground", "Resource", "Selectable"))) return;
@@ -263,7 +260,7 @@ private void UpdateWaypointLine()
 
             if (obj.GetComponentInParent<MetalNode>() is MetalNode node)
             {
-                var drop = FindClosestDropOff(transform.position);
+                var drop = FindClosestDropOff(node.transform.position);
                 if (!shift) CancelWorkerJob();
                 if (drop != null)
                 {
@@ -274,7 +271,7 @@ private void UpdateWaypointLine()
 
             if (obj.GetComponentInParent<Refinery>() is Refinery refinery && refinery.IsCompleted)
             {
-                var drop = FindClosestDropOff(transform.position);
+                var drop = FindClosestDropOff(refinery.transform.position);
                 if (!shift) CancelWorkerJob();
                 if (drop != null)
                 {
@@ -299,8 +296,6 @@ private void UpdateWaypointLine()
 
     private void HandleCombat()
     {
-        if (unitData == null)
-            return;
         if (targetEnemy != null)
         {
             float dist = Vector3.Distance(transform.position, targetEnemy.transform.position);
@@ -339,9 +334,6 @@ private void UpdateWaypointLine()
 
     private IEnumerator AttackRoutine()
     {
-        if (unitData == null)
-            yield break;
-
         agent.isStopped = true;
 
         while (targetEnemy != null)
@@ -430,21 +422,7 @@ private void UpdateWaypointLine()
                     ConfirmArrivalAtConstruction();
             }},
             { State.Building, () => {
-                if (currentSite == null)
-                {
-                    CancelWorkerJob();
-                    return;
-                }
-
-                if (!IsNear(currentSite.GetClosestPoint(transform.position), 2f))
-                {
-                    CancelWorkerJob();
-                }
-                else
-                {
-                    // actual build progress is handled by the construction site
-                    // itself based on active builders
-                }
+                currentSite?.Build(Time.deltaTime);
             }}
         };
     }
@@ -456,6 +434,8 @@ private void UpdateWaypointLine()
         currentDropOff = drop;
         isFarmingOil = false;
         resourceTarget = node.GetClosestPoint(transform.position);
+        if (NavMesh.SamplePosition(resourceTarget, out NavMeshHit hit, 5f, NavMesh.AllAreas))
+            resourceTarget = hit.position;
         currentState = State.ToResource;
         MoveTo(resourceTarget, false);
     }
@@ -467,6 +447,8 @@ private void UpdateWaypointLine()
         currentDropOff = drop;
         isFarmingOil = true;
         resourceTarget = refinery.GetClosestPoint(transform.position);
+        if (NavMesh.SamplePosition(resourceTarget, out NavMeshHit hit, 5f, NavMesh.AllAreas))
+            resourceTarget = hit.position;
         currentState = State.ToResource;
         MoveTo(resourceTarget, false);
     }
@@ -498,13 +480,26 @@ private void UpdateWaypointLine()
     }
 
     private void DropOff()
+{
+    var type = isFarmingOil ? ResourceType.Oil : ResourceType.Metal;
+
+    if (ownerFaction == null)
     {
-        var type = isFarmingOil ? ResourceType.Oil : ResourceType.Metal;
-        ResourceManager.Instance.AddResources(type, carriedResources);
-        carriedResources = 0;
-        if (isFarmingOil) StartOilCycle(currentRefinery, currentDropOff);
-        else StartHarvestCycle(currentNode, currentDropOff);
+        Debug.LogWarning($"[DropOff] ⚠️ Keine Fraktion gesetzt für Unit: {name}", this);
+        return;
     }
+
+    ResourceManager.Instance.AddResources(ownerFaction, type, carriedResources);
+    Debug.Log($"[DropOff] ➕ {carriedResources} {type} an Fraktion {ownerFaction.name} übergeben", this);
+
+    carriedResources = 0;
+
+    if (isFarmingOil)
+        StartOilCycle(currentRefinery, currentDropOff);
+    else
+        StartHarvestCycle(currentNode, currentDropOff);
+}
+
 
     public void AssignToConstruction(BuildingConstructionSite site)
     {
@@ -575,12 +570,16 @@ private void UpdateWaypointLine()
 
     private DropOffBuilding FindClosestDropOff(Vector3 pos)
     {
-        DropOffBuilding[] all = FindObjectsByType<DropOffBuilding>(FindObjectsSortMode.None);
         float bestDist = float.MaxValue;
         DropOffBuilding best = null;
 
-        foreach (var b in all)
+        foreach (var b in DropOffBuilding.Instances)
         {
+            if (b == null) continue;
+            var building = b.GetComponent<Building>();
+            if (building != null && building.GetOwner() != ownerFaction)
+                continue;
+
             float dist = Vector3.Distance(pos, b.transform.position);
             if (dist < bestDist)
             {

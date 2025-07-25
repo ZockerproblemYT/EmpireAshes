@@ -24,8 +24,7 @@ public class PatrolCommandHandler : MonoBehaviour
         if (awaitingPatrolPoints && Input.GetMouseButtonDown(1)) // Rechte Maustaste
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            Debug.DrawRay(ray.origin, ray.direction * 500f, Color.red, 1.5f);
-            if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, LayerMask.GetMask("Ground")))
+            if (Physics.Raycast(ray, out RaycastHit hit, 100f, LayerMask.GetMask("Ground")))
             {
                 if (pointA == null)
                 {
@@ -46,7 +45,7 @@ public class PatrolCommandHandler : MonoBehaviour
 
     private Unit FindSelectedUnit()
     {
-        Unit[] all = FindObjectsOfType<Unit>();
+        Unit[] all = FindObjectsByType<Unit>(FindObjectsSortMode.None);
         foreach (var u in all)
         {
             if (u.IsSelected && u.role == UnitRole.Combat)

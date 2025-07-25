@@ -17,6 +17,9 @@ public class ResourceUIController : MonoBehaviour
 
     void Update()
     {
+        var faction = MatchManager.Instance?.PlayerFaction;
+        if (faction == null) return;
+
         foreach (var slot in slots)
         {
             int amount = 0;
@@ -25,19 +28,19 @@ public class ResourceUIController : MonoBehaviour
             switch (slot.type)
             {
                 case ResourceType.Metal:
-                    amount = ResourceManager.Instance.GetMetal();
+                    amount = ResourceManager.Instance.GetMetal(faction);
                     display = amount.ToString();
                     break;
                 case ResourceType.Oil:
-                    amount = ResourceManager.Instance.GetOil();
+                    amount = ResourceManager.Instance.GetOil(faction);
                     display = amount.ToString();
                     break;
                 case ResourceType.Population:
-                    display = $"{ResourceManager.Instance.GetPopulation()} / {ResourceManager.Instance.GetMaxPopulation()}";
+                    display = $"{ResourceManager.Instance.GetPopulation(faction)} / {ResourceManager.Instance.GetMaxPopulation(faction)}";
                     break;
                 case ResourceType.Polymer:
-                    // Später wenn Plastik verfügbar ist
-                    amount = 0; // später ersetzen
+                    // Platzhalter für spätere Ressource
+                    amount = 0;
                     display = amount.ToString();
                     break;
             }

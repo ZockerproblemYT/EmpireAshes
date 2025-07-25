@@ -27,6 +27,7 @@ public class Building : MonoBehaviour
     protected Faction owner;
     private bool isDestroyed = false;
     private bool isSelected = false;
+    private bool showHPBar = true;
     private bool initialized = false;
 
     private bool isCompleted = false;
@@ -47,14 +48,19 @@ public class Building : MonoBehaviour
         if (currentHealth <= 0 || currentHealth == 1)
             currentHealth = maxHealth;
 
-        if (uiPrefab != null)
-        {
-            GameObject uiGO = Instantiate(uiPrefab);
-            uiInstance = uiGO.GetComponent<BuildingUIController>();
+        SpawnUI();
+    }
 
-            if (uiInstance != null)
-                uiInstance.Initialize(transform, this, null);
-        }
+    public void SpawnUI()
+    {
+        if (uiPrefab == null || uiInstance != null)
+            return;
+
+        GameObject uiGO = Instantiate(uiPrefab);
+        uiInstance = uiGO.GetComponent<BuildingUIController>();
+
+        if (uiInstance != null)
+            uiInstance.Initialize(transform, this, null);
     }
 
     public void SetMaxHealth(int value)
@@ -92,10 +98,16 @@ public class Building : MonoBehaviour
 
     public Faction GetOwner() => owner;
 
-    public virtual void SetSelected(bool selected)
+    public virtual void SetSelected(bool selected, bool showHP = true)
     {
         isSelected = selected;
+        showHPBar = showHP && selected;
+
+        if (uiInstance != null)
+            uiInstance.SetHPVisible(showHPBar);
     }
+
+    public bool ShouldShowHP() => showHPBar;
 
     public void TakeDamage(int amount)
     {

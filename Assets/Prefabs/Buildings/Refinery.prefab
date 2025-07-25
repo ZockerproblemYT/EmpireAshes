@@ -145,4 +145,4 @@ MonoBehaviour:
   buildingUnderConstructionVisual: {fileID: 0}
   buildTime: 10
   maxHealth: 100
-  uiPrefab: {fileID: 0}
+  uiPrefab: {fileID: 1175801689726128610, guid: 2b064ba488279e8458e377f613d0fd73, type: 3}

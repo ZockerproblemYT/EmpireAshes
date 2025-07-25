@@ -47,6 +47,7 @@ public class BuildingPlacer : MonoBehaviour
             }
 
             if (!ResourceManager.Instance.HasEnough(
+                playerFaction,
                 currentData.costMetal,
                 currentData.costOil,
                 currentData.costPopulation))
@@ -122,6 +123,7 @@ public class BuildingPlacer : MonoBehaviour
         Debug.Log("🏗️ Baustelle initialisiert.");
 
         ResourceManager.Instance.Spend(
+            playerFaction,
             currentData.costMetal,
             currentData.costOil,
             currentData.costPopulation);
@@ -171,6 +173,7 @@ public class BuildingPlacer : MonoBehaviour
     private bool IsPlacementValid(Vector3 position)
     {
         if (!ResourceManager.Instance.HasEnough(
+            playerFaction,
             currentData.costMetal,
             currentData.costOil,
             currentData.costPopulation))

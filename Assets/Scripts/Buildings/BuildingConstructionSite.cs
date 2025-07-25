@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AI;
 
 public class BuildingConstructionSite : MonoBehaviour
 {
@@ -38,31 +37,14 @@ public class BuildingConstructionSite : MonoBehaviour
         if (isCompleted || hpBuilding == null) return;
 
         int activeBuilders = 0;
-        List<Unit> toRemove = new();
 
         foreach (Unit unit in arrivedBuilders)
         {
-            if (unit == null)
-            {
-                toRemove.Add(unit);
-                continue;
-            }
+            if (unit == null) continue;
 
-            float dist = Vector3.Distance(unit.transform.position, GetClosestPoint(unit.transform.position));
-            bool builderActive = unit.role == UnitRole.Worker && unit.IsBuilding() && dist <= 2f;
-
-            if (builderActive)
-            {
+            if (unit.role == UnitRole.Worker && unit.IsBuilding())
                 activeBuilders++;
-            }
-            else if (dist > 2f || !unit.IsBuilding())
-            {
-                toRemove.Add(unit);
-            }
         }
-
-        foreach (var u in toRemove)
-            RemoveBuilder(u);
 
         if (activeBuilders > 0)
         {
@@ -152,6 +134,7 @@ public class BuildingConstructionSite : MonoBehaviour
 
         GameObject built = Instantiate(buildingData.prefab, transform.position, transform.rotation);
         Building finalBuilding = built.GetComponent<Building>();
+        Refinery refinery = built.GetComponent<Refinery>();
 
         if (finalBuilding != null)
         {
@@ -170,6 +153,18 @@ public class BuildingConstructionSite : MonoBehaviour
         else
         {
             Debug.LogWarning("⚠️ Finales Gebäude hat kein Building.cs");
+        }
+
+        if (refinery != null)
+        {
+            var buildersCopy = new List<Unit>(arrivedBuilders);
+            foreach (var worker in buildersCopy)
+            {
+                if (worker == null) continue;
+                DropOffBuilding drop = FindClosestDropOff(worker.transform.position);
+                if (drop != null)
+                    worker.StartOilCycle(refinery, drop);
+            }
         }
 
         if (uiInstance != null)
@@ -194,12 +189,26 @@ public class BuildingConstructionSite : MonoBehaviour
     public Vector3 GetClosestPoint(Vector3 from)
     {
         Collider col = GetComponentInChildren<Collider>();
-        Vector3 raw = col != null ? col.ClosestPoint(from) : transform.position;
+        return col != null ? col.ClosestPoint(from) : transform.position;
+    }
 
-        if (NavMesh.SamplePosition(raw, out NavMeshHit hit, 2f, NavMesh.AllAreas))
-            return hit.position;
+    private DropOffBuilding FindClosestDropOff(Vector3 position)
+    {
+        DropOffBuilding[] drops = FindObjectsByType<DropOffBuilding>(FindObjectsSortMode.None);
+        DropOffBuilding best = null;
+        float bestDist = float.MaxValue;
 
-        return raw;
+        foreach (var d in drops)
+        {
+            float dist = Vector3.Distance(position, d.transform.position);
+            if (dist < bestDist)
+            {
+                bestDist = dist;
+                best = d;
+            }
+        }
+
+        return best;
     }
 
     // 🔎 Public Helper

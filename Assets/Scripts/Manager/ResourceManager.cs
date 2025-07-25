@@ -1,15 +1,21 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class ResourceManager : MonoBehaviour
 {
     public static ResourceManager Instance { get; private set; }
 
-    private int metal;
-    private int oil;
-    private int population;
-    private int maxPopulation;
+    private class ResourceState
+    {
+        public int metal;
+        public int oil;
+        public int population;
+        public int maxPopulation;
+    }
 
-    void Awake()
+    private Dictionary<Faction, ResourceState> factionResources = new();
+
+    private void Awake()
     {
         if (Instance != null && Instance != this)
         {
@@ -20,85 +26,95 @@ public class ResourceManager : MonoBehaviour
         Instance = this;
     }
 
-    public void InitializeResources(int startMetal, int startOil, int startPopulation)
+    // Alternative Initialisierungsmethode für MatchManager-Kompatibilität
+    public void InitializeResources(Faction faction, int metal, int oil, int maxPop)
     {
-        metal = startMetal;
-        oil = startOil;
-        population = 0; // Startet bei 0 belegter Bevölkerung
-        maxPopulation = startPopulation;
+        if (!factionResources.ContainsKey(faction))
+        {
+            factionResources[faction] = new ResourceState();
+        }
+
+        factionResources[faction].metal = metal;
+        factionResources[faction].oil = oil;
+        factionResources[faction].population = 0;
+        factionResources[faction].maxPopulation = maxPop;
     }
 
+    // Ressourcen abfragen
+    public int GetMetal(Faction faction) => factionResources.TryGetValue(faction, out var res) ? res.metal : 0;
+    public int GetOil(Faction faction) => factionResources.TryGetValue(faction, out var res) ? res.oil : 0;
+    public int GetPopulation(Faction faction) => factionResources.TryGetValue(faction, out var res) ? res.population : 0;
+    public int GetMaxPopulation(Faction faction) => factionResources.TryGetValue(faction, out var res) ? res.maxPopulation : 0;
+    public bool IsPopulationFull(Faction faction) => GetPopulation(faction) >= GetMaxPopulation(faction);
+
     // Ressourcen hinzufügen
-    public void AddResources(ResourceType type, int amount)
+    public void AddResources(Faction faction, ResourceType type, int amount)
     {
+        if (!factionResources.TryGetValue(faction, out var res)) return;
+
         switch (type)
         {
-            case ResourceType.Metal: metal += amount; break;
-            case ResourceType.Oil: oil += amount; break;
-            case ResourceType.Population: population = Mathf.Max(0, population - amount); break;
+            case ResourceType.Metal:
+                res.metal += amount;
+                break;
+            case ResourceType.Oil:
+                res.oil += amount;
+                break;
+            case ResourceType.Population:
+                res.population = Mathf.Max(0, res.population - amount);
+                break;
         }
     }
 
-    public void AddResources(int addMetal, int addOil, int reducePopulation = 0)
+    public void AddResources(Faction faction, int addMetal, int addOil, int reducePopulation = 0)
     {
-        metal += addMetal;
-        oil += addOil;
-        population = Mathf.Max(0, population - reducePopulation);
+        if (!factionResources.TryGetValue(faction, out var res)) return;
+
+        res.metal += addMetal;
+        res.oil += addOil;
+        res.population = Mathf.Max(0, res.population - reducePopulation);
     }
 
-    // Ressourcenstand abfragen
-    public int GetResource(ResourceType type)
+    // Ressourcen prüfen
+    public bool HasEnough(Faction faction, int costMetal, int costOil, int costPop)
     {
-        return type switch
-        {
-            ResourceType.Metal => metal,
-            ResourceType.Oil => oil,
-            ResourceType.Population => population,
-            _ => 0
-        };
+        if (!factionResources.TryGetValue(faction, out var res)) return false;
+
+        return res.metal >= costMetal && res.oil >= costOil && (res.population + costPop) <= res.maxPopulation;
     }
 
-    public int GetMetal() => metal;
-    public int GetOil() => oil;
-    public int GetPopulation() => population;
-    public int GetMaxPopulation() => maxPopulation;
-    public bool IsPopulationFull() => population >= maxPopulation;
-
-    // Prüfung ob genug Ressourcen vorhanden sind
-    public bool HasEnough(int costMetal, int costOil, int costPop)
+    public bool HasEnough(Faction faction, int costMetal, int costOil)
     {
-        return metal >= costMetal && oil >= costOil && (population + costPop) <= maxPopulation;
-    }
-
-    public bool HasEnough(int costMetal, int costOil)
-    {
-        return HasEnough(costMetal, costOil, 0);
+        return HasEnough(faction, costMetal, costOil, 0);
     }
 
     // Ressourcen ausgeben
-    public void Spend(int costMetal, int costOil, int costPop)
+    public void Spend(Faction faction, int costMetal, int costOil, int costPop)
     {
-        metal -= costMetal;
-        oil -= costOil;
-        population += costPop;
+        if (!factionResources.TryGetValue(faction, out var res)) return;
+
+        res.metal -= costMetal;
+        res.oil -= costOil;
+        res.population += costPop;
     }
 
-    public void Spend(int costMetal, int costOil)
+    public void Spend(Faction faction, int costMetal, int costOil)
     {
-        Spend(costMetal, costOil, 0);
+        Spend(faction, costMetal, costOil, 0);
     }
 
-    // Rückerstattung für Bauabbruch
-    public void Refund(int refundMetal, int refundOil, int refundPop = 0)
+    // Rückerstattung (z.B. Bau abgebrochen)
+    public void Refund(Faction faction, int refundMetal, int refundOil, int refundPop = 0)
     {
-        metal += refundMetal;
-        oil += refundOil;
-        population = Mathf.Max(0, population - refundPop);
+        if (!factionResources.TryGetValue(faction, out var res)) return;
+
+        res.metal += refundMetal;
+        res.oil += refundOil;
+        res.population = Mathf.Max(0, res.population - refundPop);
     }
 
-    // Prüfung ob genug Bevölkerungskapazität frei ist
-    public bool HasPopulationCapacity(int costPop)
+    public bool HasPopulationCapacity(Faction faction, int costPop)
     {
-        return (population + costPop) <= maxPopulation;
+        return factionResources.TryGetValue(faction, out var res) && (res.population + costPop) <= res.maxPopulation;
     }
 }

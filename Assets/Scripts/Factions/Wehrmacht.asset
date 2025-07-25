@@ -18,9 +18,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 30d5513ed978cee4b88593ebb89054b2, type: 2}
   factionName: Wehrmacht
   factionColor: {r: 0.735849, g: 0.70576006, b: 0.21173012, a: 0}
-  startMetal: 10000
-  startOil: 10000
-  startPopulation: 10000
+  startMetal: 1000
+  startOil: 200
+  startPopulation: 20
   availableUnits:
   - {fileID: 11400000, guid: 0612e153539ea8d48b44b4f9dfa758d6, type: 2}
   - {fileID: 11400000, guid: 489e844cf0cb3f848bad42fd23e0204a, type: 2}

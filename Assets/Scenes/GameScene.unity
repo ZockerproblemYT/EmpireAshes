@@ -149,11 +149,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hqPrefab: {fileID: 3702571563888541682, guid: 365dbfa1996bd1848816311d2b2fddef, type: 3}
+  barrackPrefab: {fileID: 0}
   workerPrefab: {fileID: 3964639255575184390, guid: a4e492d67ba4f8247b81026166f38040, type: 3}
   metalNodePrefab: {fileID: 5715948574258410351, guid: 760d4d3de814bf449b433eed8579347d, type: 3}
   oilNodePrefab: {fileID: 8736168766601543385, guid: 4727161ad5ac1a949bbd654f9c57cf3a, type: 3}
   startPositions:
-  - {x: 8, y: 0, z: 8}
+  - {x: 8, y: 0, z: 14}
   metalNodePositions:
   - {x: 4, y: 0, z: 0}
   - {x: 8, y: 0, z: 0}
@@ -2867,7 +2868,7 @@ MonoBehaviour:
   m_Center: {x: 0, y: 2, z: 0}
   m_LayerMask:
     serializedVersion: 2
-    m_Bits: 7735
+    m_Bits: 4294967295
   m_UseGeometry: 1
   m_DefaultArea: 0
   m_GenerateLinks: 0
@@ -2880,6 +2881,58 @@ MonoBehaviour:
   m_MinRegionArea: 0
   m_NavMeshData: {fileID: 23800000, guid: a7390463cc3f9964197c8ffa66c01a94, type: 2}
   m_BuildHeightMesh: 0
+--- !u!1 &1183324388
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1183324390}
+  - component: {fileID: 1183324389}
+  m_Layer: 0
+  m_Name: AIManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1183324389
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1183324388}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c53a26942e667042be2fc8d9ee9ee8c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  faction: {fileID: 0}
+  hq: {fileID: 0}
+  barracks: {fileID: 0}
+  workerUnit: {fileID: 0}
+  combatUnit: {fileID: 0}
+  desiredWorkers: 3
+  attackGroupSize: 4
+  attackInterval: 30
+--- !u!4 &1183324390
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1183324388}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -61.61525, y: 0, z: -3.12083}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1287262987
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3596,6 +3649,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   startingFaction: {fileID: 11400000, guid: b58aa035149e2a94f8be0ee584bee7e6, type: 2}
+  aiFaction: {fileID: 0}
 --- !u!114 &1549197096
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4810,8 +4864,9 @@ SceneRoots:
   - {fileID: 499757796}
   - {fileID: 2140632732}
   - {fileID: 1549197097}
+  - {fileID: 1183324390}
   - {fileID: 2122549247}
+  - {fileID: 4467113}
   - {fileID: 220580068}
   - {fileID: 1805927673}
-  - {fileID: 4467113}
   - {fileID: 1180797928}

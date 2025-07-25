@@ -76,15 +76,22 @@ public class ProductionBuilding : Building
             return;
         }
 
-        if (!ResourceManager.Instance.HasEnough(unit.costMetal, unit.costOil, unit.costPopulation))
+        Faction owner = GetOwner();
+        if (owner == null)
         {
-            Debug.Log("❌ Nicht genug Ressourcen!");
+            Debug.LogError($"❌ EnqueueUnit: GetOwner() liefert NULL bei {gameObject.name}!");
             return;
         }
 
-        ResourceManager.Instance.Spend(unit.costMetal, unit.costOil, unit.costPopulation);
+        if (!ResourceManager.Instance.HasEnough(owner, unit.costMetal, unit.costOil, unit.costPopulation))
+        {
+            Debug.Log($"⛔ Nicht genug Ressourcen für {unit.unitName} bei Fraktion {owner.name}");
+            return;
+        }
+
+        ResourceManager.Instance.Spend(owner, unit.costMetal, unit.costOil, unit.costPopulation);
         productionQueue.Enqueue(unit);
-        Debug.Log($"✅ {unit.unitName} zur Produktionswarteschlange hinzugefügt.");
+        Debug.Log($"✅ {unit.unitName} zur Produktionswarteschlange von {owner.name} hinzugefügt.");
     }
 
     private void SpawnUnit(UnitData data)
@@ -123,7 +130,7 @@ public class ProductionBuilding : Building
 
         if (unit != null)
         {
-            unit.SetOwner(MatchManager.Instance.PlayerFaction);
+            unit.SetOwner(GetOwner());
 
             if (hasRallyPoint)
             {
@@ -143,7 +150,10 @@ public class ProductionBuilding : Building
                         MetalNode node = hitCollider.GetComponent<MetalNode>();
                         if (node != null)
                         {
-                            DropOffBuilding dropOff = FindClosestDropOff(unit.transform.position);
+                            DropOffBuilding dropOff = GetComponent<DropOffBuilding>();
+                            if (dropOff == null)
+                                dropOff = FindClosestDropOff(unit.transform.position, GetOwner());
+
                             if (dropOff != null)
                             {
                                 unit.StartHarvestCycle(node, dropOff);
@@ -157,7 +167,6 @@ public class ProductionBuilding : Building
                         }
                     }
 
-                    // Wenn kein Resource Node, einfach laufen
                     unit.MoveTo(rallyPoint, false, wp);
                 }
                 else
@@ -221,7 +230,7 @@ public class ProductionBuilding : Building
 
     public int GetQueueLength() => productionQueue.Count;
 
-    private DropOffBuilding FindClosestDropOff(Vector3 position)
+    private DropOffBuilding FindClosestDropOff(Vector3 position, Faction faction)
     {
         DropOffBuilding[] all = FindObjectsByType<DropOffBuilding>(FindObjectsSortMode.None);
         DropOffBuilding closest = null;
@@ -229,6 +238,8 @@ public class ProductionBuilding : Building
 
         foreach (var drop in all)
         {
+            if (drop.GetComponent<Building>()?.GetOwner() != faction) continue;
+
             float dist = Vector3.Distance(position, drop.transform.position);
             if (dist < minDist)
             {

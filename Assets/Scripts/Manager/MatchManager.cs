@@ -6,9 +6,15 @@ public class MatchManager : MonoBehaviour
     public static MatchManager Instance { get; private set; }
 
     [Header("Fraktionseinstellungen")]
-    public Faction startingFaction; // Vom Menü gesetzt
+    [Tooltip("Fraktion des Spielers (wird instanziiert)")]
+    public Faction startingFaction;
+
+    [Tooltip("Fraktion der KI (wird separat instanziiert)")]
+    public Faction aiFaction;
+
     public Faction PlayerFaction { get; private set; }
-    public List<Faction> AllFactions { get; private set; } = new(); // Nur 1 Fraktion vorerst
+    public Faction AIFaction { get; private set; }
+    public List<Faction> AllFactions { get; private set; } = new();
 
     private void Awake()
     {
@@ -23,42 +29,63 @@ public class MatchManager : MonoBehaviour
 
     private void Start()
     {
-        if (startingFaction != null)
+        if (startingFaction == null)
         {
-            PlayerFaction = Instantiate(startingFaction);
+            Debug.LogError("❌ MatchManager: Keine Spielerfraktion gesetzt!");
+            return;
+        }
 
-            // Farbwahl laden
-            if (PlayerPrefs.HasKey("PlayerColorR"))
+        // Spielerfraktion instanziieren
+        PlayerFaction = Instantiate(startingFaction);
+        AllFactions.Add(PlayerFaction);
+
+        // Farbwahl des Spielers laden (falls vorhanden)
+        if (PlayerPrefs.HasKey("PlayerColorR"))
+        {
+            float r = PlayerPrefs.GetFloat("PlayerColorR");
+            float g = PlayerPrefs.GetFloat("PlayerColorG");
+            float b = PlayerPrefs.GetFloat("PlayerColorB");
+
+            PlayerFaction.factionColor = new Color(r, g, b);
+            Debug.Log($"🎨 Spielerfarbe aus PlayerPrefs geladen: {PlayerFaction.factionColor}");
+        }
+
+        // Ressourcen für Spieler setzen
+        ResourceManager.Instance.InitializeResources(
+            PlayerFaction,
+            PlayerFaction.startMetal,
+            PlayerFaction.startOil,
+            PlayerFaction.startPopulation
+        );
+
+        Debug.Log($"✅ Spielerfraktion instanziiert: {PlayerFaction.name}");
+
+        // KI-Fraktion instanziieren (wenn angegeben)
+        if (aiFaction != null)
+        {
+            AIFaction = Instantiate(aiFaction);
+            AllFactions.Add(AIFaction);
+
+            // Farbänderung, falls gleich
+            if (AIFaction.factionColor == PlayerFaction.factionColor)
             {
-                float r = PlayerPrefs.GetFloat("PlayerColorR");
-                float g = PlayerPrefs.GetFloat("PlayerColorG");
-                float b = PlayerPrefs.GetFloat("PlayerColorB");
-
-                Color loadedColor = new Color(r, g, b);
-                PlayerFaction.factionColor = loadedColor;
-
-                Debug.Log($"🎨 Fraktionsfarbe aus PlayerPrefs geladen: {loadedColor}");
-            }
-            else
-            {
-                Debug.Log("ℹ️ Keine gespeicherte Farbe gefunden, Standardfarbe wird verwendet.");
+                AIFaction.factionColor = Color.red;
+                Debug.Log("🔴 KI-Farbe wurde zur besseren Unterscheidung auf Rot gesetzt.");
             }
 
-            // Ressourcen setzen
+            // Ressourcen für KI setzen
             ResourceManager.Instance.InitializeResources(
-                PlayerFaction.startMetal,
-                PlayerFaction.startOil,
-                PlayerFaction.startPopulation
+                AIFaction,
+                AIFaction.startMetal,
+                AIFaction.startOil,
+                AIFaction.startPopulation
             );
 
-            // Fraktion in AllFactions einfügen
-            AllFactions.Add(PlayerFaction);
-
-            Debug.Log($"✅ MatchManager: Spielerfraktion gesetzt: {PlayerFaction.name}");
+            Debug.Log($"🤖 KI-Fraktion instanziiert: {AIFaction.name}");
         }
         else
         {
-            Debug.LogError("❌ MatchManager: Keine Fraktion gesetzt!");
+            Debug.LogWarning("⚠️ Keine KI-Fraktion zugewiesen.");
         }
     }
 }

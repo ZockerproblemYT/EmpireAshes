@@ -17,6 +17,7 @@ public class UnitSelectionHandler : MonoBehaviour
 
     private ProductionUIManager uiManager;
     private WorkerUI workerUI;
+    private bool startedOnUI = false;
 
     private readonly List<Unit> selectedUnits = new();
     private readonly List<Building> selectedBuildings = new();
@@ -60,7 +61,8 @@ public class UnitSelectionHandler : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            if (EventSystem.current.IsPointerOverGameObject()) return;
+            startedOnUI = EventSystem.current.IsPointerOverGameObject();
+            if (startedOnUI) return;
 
             startPos = Input.mousePosition;
 
@@ -75,6 +77,13 @@ public class UnitSelectionHandler : MonoBehaviour
 
         if (Input.GetMouseButtonUp(0))
         {
+            if (startedOnUI || (EventSystem.current.IsPointerOverGameObject() && !selectionBox.gameObject.activeSelf))
+            {
+                selectionBox.gameObject.SetActive(false);
+                startedOnUI = false;
+                return;
+            }
+
             if (Vector2.Distance(startPos, Input.mousePosition) < 10f)
             {
                 SingleClickSelect();
@@ -85,6 +94,7 @@ public class UnitSelectionHandler : MonoBehaviour
             }
 
             selectionBox.gameObject.SetActive(false);
+            startedOnUI = false;
         }
     }
 
@@ -94,13 +104,80 @@ public class UnitSelectionHandler : MonoBehaviour
             return;
 
         Ray ray = cam.ScreenPointToRay(Input.mousePosition);
-        if (!Physics.Raycast(ray, out RaycastHit hit))
+        RaycastHit[] hits = Physics.RaycastAll(ray);
+        if (hits.Length == 0)
             return;
+
+        RaycastHit hit = default;
+        float bestDist = float.MaxValue;
+        bool found = false;
+
+        foreach (var h in hits)
+        {
+            Unit u = h.collider.GetComponentInParent<Unit>();
+            if (u != null && selectedUnits.Contains(u))
+                continue;
+
+            if (h.distance < bestDist)
+            {
+                bestDist = h.distance;
+                hit = h;
+                found = true;
+            }
+        }
+
+        if (!found)
+            return;
+
+        bool shift = Input.GetKey(KeyCode.LeftShift);
 
         if (selectedUnits.Count > 0)
         {
             foreach (Unit unit in selectedUnits)
-                unit.HandleRightClick();
+            {
+                if (unit.role == UnitRole.Worker)
+                {
+                    if (hit.collider.GetComponentInParent<BuildingConstructionSite>() is BuildingConstructionSite site)
+                    {
+                        if (!shift)
+                            unit.CancelWorkerJob();
+                        unit.AssignToConstruction(site);
+                        continue;
+                    }
+
+                    // Ressourceninteraktion prüfen
+                    if (hit.collider.GetComponentInParent<MetalNode>() is MetalNode node)
+                    {
+                        var drop = FindClosestDropOff(node.transform.position, unit.GetOwnerFaction());
+                        if (!shift) unit.CancelWorkerJob();
+                        if (drop != null)
+                        {
+                            unit.StartHarvestCycle(node, drop);
+                            continue;
+                        }
+                    }
+
+                    if (hit.collider.GetComponentInParent<Refinery>() is Refinery refinery && refinery.IsCompleted)
+                    {
+                        var drop = FindClosestDropOff(refinery.transform.position, unit.GetOwnerFaction());
+                        if (!shift) unit.CancelWorkerJob();
+                        if (drop != null)
+                        {
+                            unit.StartOilCycle(refinery, drop);
+                            continue;
+                        }
+                    }
+
+                    if (!shift)
+                        unit.CancelWorkerJob();
+                }
+
+                GameObject flag = null;
+                if (unit.waypointPrefab != null)
+                    flag = Instantiate(unit.waypointPrefab, hit.point, Quaternion.identity);
+
+                unit.MoveTo(hit.point, shift, flag);
+            }
         }
         else if (selectedBuildings.Count == 1)
         {
@@ -117,7 +194,7 @@ public class UnitSelectionHandler : MonoBehaviour
     {
         if (Input.GetMouseButton(0))
         {
-            if (EventSystem.current.IsPointerOverGameObject()) return;
+            if (startedOnUI || EventSystem.current.IsPointerOverGameObject()) return;
 
             if (!selectionBox.gameObject.activeSelf)
                 selectionBox.gameObject.SetActive(true);
@@ -142,7 +219,7 @@ public class UnitSelectionHandler : MonoBehaviour
             if (unit != null)
                 AddToSelection(unit);
             else if (building != null)
-                AddToSelection(building);
+                AddToSelection(building, false);
         }
     }
 
@@ -178,7 +255,7 @@ public class UnitSelectionHandler : MonoBehaviour
                 if (screenPos.z < 0) continue;
 
                 if (selectionRect.Contains(screenPos))
-                    AddToSelection(building);
+                    AddToSelection(building, true);
             }
         }
     }
@@ -195,28 +272,44 @@ public class UnitSelectionHandler : MonoBehaviour
         }
     }
 
-    void AddToSelection(Building building)
+    void AddToSelection(Building building, bool showHP = true)
     {
         if (!selectedBuildings.Contains(building))
         {
             selectedBuildings.Add(building);
-            building.SetSelected(true);
+            building.SetSelected(true, showHP);
 
             ProductionBuilding pb = building.GetComponent<ProductionBuilding>();
-            if (uiManager != null)
+            if (pb != null && uiManager != null)
             {
-                if (selectedBuildings.Count == 1 && pb != null)
-                {
-                    uiManager.ShowFor(pb);
-                }
-                else if (selectedBuildings.Count > 1)
-                {
-                    uiManager.Hide();
-                }
+                uiManager.ShowFor(pb);
             }
 
             workerUI?.Refresh();
         }
+    }
+
+    DropOffBuilding FindClosestDropOff(Vector3 position, Faction faction)
+    {
+        float bestDist = float.MaxValue;
+        DropOffBuilding best = null;
+
+        foreach (var drop in DropOffBuilding.Instances)
+        {
+            if (drop == null) continue;
+            var building = drop.GetComponent<Building>();
+            if (building != null && building.GetOwner() != faction)
+                continue;
+
+            float dist = Vector3.Distance(position, drop.transform.position);
+            if (dist < bestDist)
+            {
+                bestDist = dist;
+                best = drop;
+            }
+        }
+
+        return best;
     }
 
     void DeselectAll()
