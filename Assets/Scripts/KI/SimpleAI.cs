@@ -150,7 +150,7 @@ public class SimpleAI : MonoBehaviour
     {
         foreach (var unit in combatUnits)
         {
-            if (unit == null) continue;
+            if (unit == null || unit.unitData == null) continue;
             Unit enemy = FindEnemyInRange(unit.transform.position, unit.unitData.visionRange);
             if (enemy != null)
                 unit.SetTarget(enemy);

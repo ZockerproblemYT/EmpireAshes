@@ -69,6 +69,9 @@ public class Unit : MonoBehaviour
         health = GetComponent<Health>();
         lineRenderer = GetComponent<LineRenderer>();
 
+        if (health != null)
+            health.OnDeath.AddListener(HandleDeath);
+
         // ensure selection circle exists even if prefab reference lost
         if (selectionCircle == null || !selectionCircle.scene.IsValid())
         {
@@ -752,9 +755,18 @@ private void UpdateWaypointLine()
         return bOwner != ownerFaction;
     }
 
+    public void SetTarget(Unit enemy)
+    {
+        // avoid resetting the current attack state if we already target this unit
+        if (enemy == null || !IsEnemy(enemy) || enemy == targetEnemy)
+            return;
+
+        AttackUnit(enemy);
+    }
+
     public void AttackUnit(Unit enemy)
     {
-        if (enemy == null || !IsEnemy(enemy)) return;
+        if (enemy == null || !IsEnemy(enemy) || enemy == targetEnemy) return;
 
         if (attackRoutine != null)
         {
@@ -769,7 +781,7 @@ private void UpdateWaypointLine()
 
     public void AttackBuilding(Building building)
     {
-        if (building == null || !IsEnemy(building)) return;
+        if (building == null || !IsEnemy(building) || building == targetBuilding) return;
 
         if (attackRoutine != null)
         {
@@ -780,5 +792,13 @@ private void UpdateWaypointLine()
         targetBuilding = building;
         targetEnemy = null;
         MoveTo(building.transform.position, false);
+    }
+
+    private void HandleDeath()
+    {
+        if (ownerFaction != null && unitData != null)
+            ResourceManager.Instance.AddResources(ownerFaction, 0, 0, unitData.costPopulation);
+
+        ClearWaypoints();
     }
 }

@@ -111,7 +111,8 @@ public class BuildingUIController : MonoBehaviour
             if (hpCanvasGroup != null)
             {
                 bool isUnderConstruction = constructionSite != null;
-                bool shouldShowHP = isUnderConstruction || hpVisible;
+                bool isDamaged = targetBuilding != null && targetBuilding.CurrentHealth < targetBuilding.MaxHealth;
+                bool shouldShowHP = isUnderConstruction || hpVisible || isDamaged;
                 hpCanvasGroup.alpha = shouldShowHP ? 1f : 0f;
             }
         }
