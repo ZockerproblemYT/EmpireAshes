@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 422cac7dbd980ed439265008699fe741, type: 3}
-  m_Name: bunker
+  m_Name: Bunker
   m_EditorClassIdentifier: 
   buildingName: Bunker
   buildingType: 5
   prefab: {fileID: 1859264426425977078, guid: 42b6459ad88edf742b2c693da5c03e32, type: 3}
   ghostPrefab: {fileID: 1844372635997890233, guid: c8c74cce29e8a754a8e41fbeaa8d9d73, type: 3}
   constructionPrefab: {fileID: 1844372635997890233, guid: 3b404bc3162323a4899e4ea58a0b050a, type: 3}
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 5f2345f7504985041ae3e4a75848a818, type: 3}
   maxHealth: 100
   costMetal: 150
   costOil: 50

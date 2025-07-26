@@ -13,6 +13,8 @@ GameObject:
   - component: {fileID: 6125567741279726731}
   - component: {fileID: 1181987493528851566}
   - component: {fileID: 4071730970162235529}
+  - component: {fileID: 7949889240132433065}
+  - component: {fileID: 6441504706372685393}
   m_Layer: 10
   m_Name: House
   m_TagString: Untagged
@@ -125,3 +127,44 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 0, z: 0}
   m_TimeToStationary: 0.5
+--- !u!114 &7949889240132433065
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1859264426425977078}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f80bc13964a1328459870e1f298d12c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  buildingName: 
+  costMetal: 0
+  costOil: 0
+  costPopulation: 0
+  buildingUnderConstructionVisual: {fileID: 0}
+  buildTime: 10
+  maxHealth: 100
+  uiPrefab: {fileID: 0}
+  populationBonus: 5
+--- !u!114 &6441504706372685393
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1859264426425977078}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3af914f1776cf1841b0935d09d3d0d41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  buildingName: 
+  costMetal: 0
+  costOil: 0
+  costPopulation: 0
+  buildingUnderConstructionVisual: {fileID: 0}
+  buildTime: 10
+  maxHealth: 100
+  uiPrefab: {fileID: 0}

@@ -17,7 +17,7 @@ MonoBehaviour:
   prefab: {fileID: 1859264426425977078, guid: 354f7d8a2f9b85845a30cea3f6171daa, type: 3}
   ghostPrefab: {fileID: 1844372635997890233, guid: 050e7fb24beafc14086b9489c1d2f2de, type: 3}
   constructionPrefab: {fileID: 1844372635997890233, guid: 9dd2d550c8c69be4b92888e3d4a4dc52, type: 3}
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 634842b48fe051d4699b229be8dfc5e1, type: 3}
   maxHealth: 100
   costMetal: 200
   costOil: 100

@@ -114,7 +114,7 @@ public class Building : MonoBehaviour
 
     public bool ShouldShowHP() => showHPBar;
 
-    public void TakeDamage(int amount)
+    public virtual void TakeDamage(int amount, Unit attacker = null)
     {
         if (isDestroyed) return;
 

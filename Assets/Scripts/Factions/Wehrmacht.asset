@@ -16,6 +16,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 772ea04129bae4547bf6e1c5aeadf78c, type: 2}
   - {fileID: 11400000, guid: 102f36cb87b24f34db19b68465272a9d, type: 2}
   - {fileID: 11400000, guid: 30d5513ed978cee4b88593ebb89054b2, type: 2}
+  - {fileID: 11400000, guid: 107cb78cfd15d7941a70805808cf0af2, type: 2}
+  - {fileID: 11400000, guid: 9eeea44c5dd3e13489d07f435854cdae, type: 2}
+  - {fileID: 11400000, guid: df97619df1540c445b89c032d473611b, type: 2}
+  - {fileID: 11400000, guid: eb481acff20eef74a8115d7220d176d7, type: 2}
   factionName: Wehrmacht
   factionColor: {r: 0.735849, g: 0.70576006, b: 0.21173012, a: 0}
   startMetal: 1000

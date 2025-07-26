@@ -74,15 +74,6 @@ public class MapLoader : MonoBehaviour
             if (faction == aiFaction)
             {
                 GameObject barrack = null;
-                if (barrackPrefab != null)
-                {
-                    Vector3 barrackPos = spawnPos + new Vector3(5f, 0f, 2f);
-                    barrack = Instantiate(barrackPrefab, barrackPos, Quaternion.identity);
-                    foreach (var bld in barrack.GetComponents<Building>())
-                    {
-                        bld.SetOwner(faction);
-                    }
-                }
 
                 SimpleAI ai = FindFirstObjectByType<SimpleAI>();
                 if (ai != null)

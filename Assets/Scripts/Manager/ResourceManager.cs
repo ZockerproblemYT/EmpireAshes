@@ -117,4 +117,15 @@ public class ResourceManager : MonoBehaviour
     {
         return factionResources.TryGetValue(faction, out var res) && (res.population + costPop) <= res.maxPopulation;
     }
+
+    // === Population Capacity Modification ===
+    public void ChangeMaxPopulation(Faction faction, int delta)
+    {
+        if (!factionResources.TryGetValue(faction, out var res)) return;
+
+        res.maxPopulation = Mathf.Max(0, res.maxPopulation + delta);
+    }
+
+    public void IncreaseMaxPopulation(Faction faction, int amount) => ChangeMaxPopulation(faction, amount);
+    public void DecreaseMaxPopulation(Faction faction, int amount) => ChangeMaxPopulation(faction, -amount);
 }
