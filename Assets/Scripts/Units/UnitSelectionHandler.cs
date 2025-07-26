@@ -131,6 +131,9 @@ public class UnitSelectionHandler : MonoBehaviour
 
         bool shift = Input.GetKey(KeyCode.LeftShift);
 
+        Unit clickedUnit = hit.collider.GetComponentInParent<Unit>();
+        Building clickedBuilding = hit.collider.GetComponentInParent<Building>();
+
         if (selectedUnits.Count > 0)
         {
             foreach (Unit unit in selectedUnits)
@@ -170,6 +173,18 @@ public class UnitSelectionHandler : MonoBehaviour
 
                     if (!shift)
                         unit.CancelWorkerJob();
+                }
+
+                if (clickedUnit != null && unit.IsEnemy(clickedUnit))
+                {
+                    unit.AttackUnit(clickedUnit);
+                    continue;
+                }
+
+                if (clickedBuilding != null && unit.IsEnemy(clickedBuilding))
+                {
+                    unit.AttackBuilding(clickedBuilding);
+                    continue;
                 }
 
                 GameObject flag = null;
@@ -262,6 +277,13 @@ public class UnitSelectionHandler : MonoBehaviour
 
     void AddToSelection(Unit unit)
     {
+        if (unit == null)
+            return;
+
+        Faction playerFaction = MatchManager.Instance?.PlayerFaction;
+        if (playerFaction != null && unit.GetOwnerFaction() != playerFaction)
+            return;
+
         if (!selectedUnits.Contains(unit))
         {
             selectedUnits.Add(unit);
@@ -274,6 +296,13 @@ public class UnitSelectionHandler : MonoBehaviour
 
     void AddToSelection(Building building, bool showHP = true)
     {
+        if (building == null)
+            return;
+
+        Faction playerFaction = MatchManager.Instance?.PlayerFaction;
+        if (playerFaction != null && building.GetOwner() != playerFaction)
+            return;
+
         if (!selectedBuildings.Contains(building))
         {
             selectedBuildings.Add(building);

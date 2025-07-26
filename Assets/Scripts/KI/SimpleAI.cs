@@ -51,6 +51,7 @@ public class SimpleAI : MonoBehaviour
         HandleProduction();
         AssignWorkers();
         HandleAttack();
+        SearchForTargets();
     }
 
     private void CollectUnits()
@@ -143,5 +144,35 @@ public class SimpleAI : MonoBehaviour
             c.MoveTo(playerHQ.transform.position, false);
         }
         attackTimer = attackInterval;
+    }
+
+    private void SearchForTargets()
+    {
+        foreach (var unit in combatUnits)
+        {
+            if (unit == null) continue;
+            Unit enemy = FindEnemyInRange(unit.transform.position, unit.unitData.visionRange);
+            if (enemy != null)
+                unit.SetTarget(enemy);
+        }
+    }
+
+    private Unit FindEnemyInRange(Vector3 pos, float range)
+    {
+        Collider[] hits = Physics.OverlapSphere(pos, range);
+        Unit best = null;
+        float dist = float.MaxValue;
+        foreach (var hit in hits)
+        {
+            Unit u = hit.GetComponent<Unit>();
+            if (u == null || u.GetOwnerFaction() == faction) continue;
+            float d = Vector3.Distance(pos, u.transform.position);
+            if (d < dist)
+            {
+                dist = d;
+                best = u;
+            }
+        }
+        return best;
     }
 }

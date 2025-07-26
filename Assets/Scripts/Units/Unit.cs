@@ -40,6 +40,7 @@ public class Unit : MonoBehaviour
 
     private Coroutine attackRoutine;
     private Unit targetEnemy;
+    private Building targetBuilding;
 
     private enum State { Idle, ToResource, Harvesting, ToDropOff, ToBuild, Building }
     private State currentState = State.Idle;
@@ -157,7 +158,6 @@ public class Unit : MonoBehaviour
         agent.isStopped = false;
         agent.ResetPath();
         agent.SetDestination(hit.position);
-
         UpdateWaypointLine();
 
         Debug.Log($"[MoveTo] ✅ Ziel gesetzt: {hit.position} (Distanz: {Vector3.Distance(transform.position, hit.position):F2})", this);
@@ -284,6 +284,26 @@ private void UpdateWaypointLine()
                 CancelWorkerJob();
         }
 
+        // Check if clicked on enemy unit
+        Unit enemyUnit = obj.GetComponentInParent<Unit>();
+        if (enemyUnit != null && enemyUnit != this && IsEnemy(enemyUnit))
+        {
+            targetEnemy = enemyUnit;
+            targetBuilding = null;
+            MoveTo(enemyUnit.transform.position, false);
+            return;
+        }
+
+        // Check if clicked on enemy building
+        Building enemyBld = obj.GetComponentInParent<Building>();
+        if (enemyBld != null && IsEnemy(enemyBld))
+        {
+            targetBuilding = enemyBld;
+            targetEnemy = null;
+            MoveTo(enemyBld.transform.position, false);
+            return;
+        }
+
         if (waypointPrefab)
         {
             flag = Instantiate(waypointPrefab, clickPos, Quaternion.identity);
@@ -291,11 +311,21 @@ private void UpdateWaypointLine()
             SetWaypointColor(flag);
         }
 
+        targetEnemy = null;
+        targetBuilding = null;
+        if (attackRoutine != null)
+        {
+            StopCoroutine(attackRoutine);
+            attackRoutine = null;
+        }
+
         MoveTo(clickPos, shift, flag);
     }
 
     private void HandleCombat()
     {
+        if (unitData == null)
+            return;
         if (targetEnemy != null)
         {
             float dist = Vector3.Distance(transform.position, targetEnemy.transform.position);
@@ -308,9 +338,23 @@ private void UpdateWaypointLine()
             }
         }
 
-        if (targetEnemy == null)
+        if (targetBuilding != null)
+        {
+            float dist = Vector3.Distance(transform.position, targetBuilding.transform.position);
+
+            if (targetBuilding.IsDestroyed() || dist > unitData.visionRange * 2f)
+            {
+                targetBuilding = null;
+                if (attackRoutine != null) StopCoroutine(attackRoutine);
+                attackRoutine = null;
+            }
+        }
+
+        if (targetEnemy == null && targetBuilding == null)
         {
             targetEnemy = FindClosestEnemyInRange(unitData.visionRange);
+            if (targetEnemy == null)
+                targetBuilding = FindClosestEnemyBuildingInRange(unitData.visionRange);
         }
 
         if (targetEnemy != null)
@@ -330,42 +374,82 @@ private void UpdateWaypointLine()
                     MoveTo(targetEnemy.transform.position, false);
             }
         }
+        else if (targetBuilding != null)
+        {
+            float dist = Vector3.Distance(transform.position, targetBuilding.transform.position);
+
+            if (dist <= unitData.attackRange)
+            {
+                FaceTarget(targetBuilding.transform);
+
+                if (attackRoutine == null)
+                    attackRoutine = StartCoroutine(AttackRoutine());
+            }
+            else
+            {
+                if (!IsMoving() || currentTarget != targetBuilding.transform.position)
+                    MoveTo(targetBuilding.transform.position, false);
+            }
+        }
     }
 
     private IEnumerator AttackRoutine()
     {
+        if (unitData == null)
+            yield break;
         agent.isStopped = true;
 
-        while (targetEnemy != null)
+        while (targetEnemy != null || targetBuilding != null)
         {
-            float dist = Vector3.Distance(transform.position, targetEnemy.transform.position);
-
-            if (dist <= unitData.attackRange)
+            if (targetEnemy != null)
             {
-                FaceTarget(targetEnemy.transform);
+                float dist = Vector3.Distance(transform.position, targetEnemy.transform.position);
 
-                if (unitData.attackType == AttackType.AoE)
+                if (dist <= unitData.attackRange)
                 {
-                    Collider[] hits = Physics.OverlapSphere(transform.position, unitData.attackRange);
-                    foreach (var hit in hits)
+                    FaceTarget(targetEnemy.transform);
+
+                    if (unitData.attackType == AttackType.AoE)
                     {
-                        Unit u = hit.GetComponent<Unit>();
-                        if (u != null && u != this && u.ownerFaction != this.ownerFaction)
+                        Collider[] hits = Physics.OverlapSphere(transform.position, unitData.attackRange);
+                        foreach (var hit in hits)
                         {
-                            u.health.TakeDamage(unitData.attackDamage, unitData.damageType, u.unitData.armor);
+                            Unit u = hit.GetComponent<Unit>();
+                            if (u != null && u != this && IsEnemy(u))
+                            {
+                                u.health.TakeDamage(unitData.attackDamage, unitData.damageType, u.unitData.armor);
+                            }
                         }
                     }
+                    else
+                    {
+                        targetEnemy.health.TakeDamage(unitData.attackDamage, unitData.damageType, targetEnemy.unitData.armor);
+                    }
+
+                    yield return new WaitForSeconds(1f / unitData.attackRate);
+                    continue;
                 }
                 else
                 {
-                    targetEnemy.health.TakeDamage(unitData.attackDamage, unitData.damageType, targetEnemy.unitData.armor);
+                    break;
                 }
-
-                yield return new WaitForSeconds(1f / unitData.attackRate);
             }
-            else
+
+            if (targetBuilding != null)
             {
-                break;
+                float dist = Vector3.Distance(transform.position, targetBuilding.transform.position);
+
+                if (dist <= unitData.attackRange)
+                {
+                    FaceTarget(targetBuilding.transform);
+                    targetBuilding.TakeDamage(Mathf.RoundToInt(unitData.attackDamage));
+                    yield return new WaitForSeconds(1f / unitData.attackRate);
+                    continue;
+                }
+                else
+                {
+                    break;
+                }
             }
         }
 
@@ -381,11 +465,32 @@ private void UpdateWaypointLine()
         foreach (var hit in hits)
         {
             Unit u = hit.GetComponent<Unit>();
-            if (u == null || u == this || u.ownerFaction == this.ownerFaction) continue;
+            if (u == null || u == this || !IsEnemy(u)) continue;
             float dist = Vector3.Distance(transform.position, u.transform.position);
             if (dist < minDist)
             {
                 closest = u;
+                minDist = dist;
+            }
+        }
+
+        return closest;
+    }
+
+    private Building FindClosestEnemyBuildingInRange(float range)
+    {
+        Collider[] hits = Physics.OverlapSphere(transform.position, range);
+        Building closest = null;
+        float minDist = float.MaxValue;
+
+        foreach (var hit in hits)
+        {
+            Building b = hit.GetComponentInParent<Building>();
+            if (b == null || !IsEnemy(b)) continue;
+            float dist = Vector3.Distance(transform.position, b.transform.position);
+            if (dist < minDist)
+            {
+                closest = b;
                 minDist = dist;
             }
         }
@@ -577,7 +682,7 @@ private void UpdateWaypointLine()
         {
             if (b == null) continue;
             var building = b.GetComponent<Building>();
-            if (building != null && building.GetOwner() != ownerFaction)
+            if (building != null && IsEnemy(building))
                 continue;
 
             float dist = Vector3.Distance(pos, b.transform.position);
@@ -593,7 +698,7 @@ private void UpdateWaypointLine()
     private void UpdateHealthbar()
 {
     if (spawnedHealthBar != null)
-        spawnedHealthBar.transform.position = transform.position + Vector3.up * 2.2f;
+        spawnedHealthBar.transform.position = transform.position + Vector3.up *2.2f;
 }
 
 
@@ -631,4 +736,49 @@ private void UpdateWaypointLine()
     public bool IsIdle() => currentState == State.Idle;
     public bool IsMoving() => agent.hasPath && agent.remainingDistance > agent.stoppingDistance + 0.05f;
     public Faction GetOwnerFaction() => ownerFaction;
+
+    public bool IsEnemy(Unit other)
+    {
+        if (other == null) return false;
+        if (ownerFaction == null || other.ownerFaction == null) return false;
+        return other.ownerFaction != ownerFaction;
+    }
+
+    public bool IsEnemy(Building building)
+    {
+        if (building == null) return false;
+        var bOwner = building.GetOwner();
+        if (ownerFaction == null || bOwner == null) return false;
+        return bOwner != ownerFaction;
+    }
+
+    public void AttackUnit(Unit enemy)
+    {
+        if (enemy == null || !IsEnemy(enemy)) return;
+
+        if (attackRoutine != null)
+        {
+            StopCoroutine(attackRoutine);
+            attackRoutine = null;
+        }
+
+        targetEnemy = enemy;
+        targetBuilding = null;
+        MoveTo(enemy.transform.position, false);
+    }
+
+    public void AttackBuilding(Building building)
+    {
+        if (building == null || !IsEnemy(building)) return;
+
+        if (attackRoutine != null)
+        {
+            StopCoroutine(attackRoutine);
+            attackRoutine = null;
+        }
+
+        targetBuilding = building;
+        targetEnemy = null;
+        MoveTo(building.transform.position, false);
+    }
 }

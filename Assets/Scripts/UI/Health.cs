@@ -6,6 +6,7 @@ public class Health : MonoBehaviour
 {
     [Header("Events")]
     public UnityEvent<float, float> OnHealthChanged = new UnityEvent<float, float>(); // (current, max)
+    public UnityEvent<Unit> OnDamaged = new UnityEvent<Unit>();
     public UnityEvent OnDeath = new UnityEvent();
 
     [Header("Status")]
@@ -35,7 +36,7 @@ public class Health : MonoBehaviour
         OnHealthChanged.Invoke(currentHealth, maxHealth);
     }
 
-    public void TakeDamage(float amount)
+    public void TakeDamage(float amount, Unit attacker = null)
     {
         if (currentHealth <= 0f) return;
 
@@ -43,17 +44,18 @@ public class Health : MonoBehaviour
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
         Debug.Log($"[Health] 💥 Schaden: {amount} -> {currentHealth}/{maxHealth}", this);
         OnHealthChanged.Invoke(currentHealth, maxHealth);
+        OnDamaged.Invoke(attacker);
 
         if (currentHealth <= 0)
             Die();
     }
 
-    public void TakeDamage(float amount, DamageType damageType, ArmorType targetArmor)
+    public void TakeDamage(float amount, DamageType damageType, ArmorType targetArmor, Unit attacker = null)
     {
         float multiplier = CalculateDamageMultiplier(damageType, targetArmor);
         float finalDamage = amount * multiplier;
         Debug.Log($"[Health] ⚔️ Typ-Schaden: {amount} * {multiplier} = {finalDamage} ({damageType} → {targetArmor})", this);
-        TakeDamage(finalDamage);
+        TakeDamage(finalDamage, attacker);
     }
 
     public void Heal(float amount)
