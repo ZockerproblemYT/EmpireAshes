@@ -22,6 +22,14 @@ public class SimpleAI : MonoBehaviour
     private Building playerHQ;
     private bool initialized = false;
 
+    // Neubau-Logik
+    private BuildingData barracksData;
+    private BuildingData houseData;
+    private BuildingData bunkerData;
+    private bool builtExtraBarracks = false;
+    private bool builtHouse = false;
+    private bool builtBunker = false;
+
     public void Initialize(Faction faction, ProductionBuilding hq, ProductionBuilding barracks, UnitData worker, UnitData combat)
     {
         this.faction = faction;
@@ -29,6 +37,26 @@ public class SimpleAI : MonoBehaviour
         this.barracks = barracks;
         this.workerUnit = worker;
         this.combatUnit = combat;
+
+        // verfügbare BuildingData zuordnen
+        if (faction != null && faction.availableBuildings != null)
+        {
+            foreach (var bData in faction.availableBuildings)
+            {
+                switch (bData.buildingType)
+                {
+                    case BuildingType.Barracks:
+                        barracksData = bData;
+                        break;
+                    case BuildingType.House:
+                        houseData = bData;
+                        break;
+                    case BuildingType.Bunker:
+                        bunkerData = bData;
+                        break;
+                }
+            }
+        }
 
         foreach (var b in FindObjectsByType<Building>(FindObjectsSortMode.None))
         {
@@ -49,6 +77,7 @@ public class SimpleAI : MonoBehaviour
 
         CollectUnits();
         HandleProduction();
+        HandleConstruction();
         AssignWorkers();
         HandleAttack();
         SearchForTargets();
@@ -174,5 +203,59 @@ public class SimpleAI : MonoBehaviour
             }
         }
         return best;
+    }
+
+    // -------------------------------------------------------
+    // Bau- und Produktionslogik
+
+    private void HandleConstruction()
+    {
+        if (hq == null) return;
+
+        // einfache Platzierungslogik in der Nähe des HQ
+        if (!builtHouse && houseData != null)
+        {
+            if (TryBuild(houseData, hq.transform.position + new Vector3(4f, 0f, -4f)))
+                builtHouse = true;
+        }
+
+        if (!builtExtraBarracks && barracksData != null)
+        {
+            if (TryBuild(barracksData, hq.transform.position + new Vector3(-6f, 0f, 3f)))
+                builtExtraBarracks = true;
+        }
+
+        if (!builtBunker && bunkerData != null)
+        {
+            if (TryBuild(bunkerData, hq.transform.position + new Vector3(0f, 0f, 8f)))
+                builtBunker = true;
+        }
+    }
+
+    private bool TryBuild(BuildingData data, Vector3 position)
+    {
+        if (!ResourceManager.Instance.HasEnough(faction, data.costMetal, data.costOil, data.costPopulation))
+            return false;
+
+        GameObject siteObj = Instantiate(data.constructionPrefab, position, Quaternion.identity);
+        BuildingConstructionSite site = siteObj.GetComponent<BuildingConstructionSite>();
+        if (site != null)
+        {
+            site.Initialize(data, faction);
+            ResourceManager.Instance.Spend(faction, data.costMetal, data.costOil, data.costPopulation);
+
+            foreach (var w in workers)
+            {
+                if (w != null && w.IsIdle() && !w.IsMoving() && !w.IsBuilding())
+                {
+                    w.AssignToConstruction(site);
+                    break;
+                }
+            }
+            return true;
+        }
+
+        Destroy(siteObj);
+        return false;
     }
 }
