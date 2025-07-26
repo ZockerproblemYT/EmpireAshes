@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 422cac7dbd980ed439265008699fe741, type: 3}
+  m_Name: House
+  m_EditorClassIdentifier: 
+  buildingName: House
+  buildingType: 4
+  prefab: {fileID: 1859264426425977078, guid: 420547b7e664e154f8e677054aa75257, type: 3}
+  ghostPrefab: {fileID: 1844372635997890233, guid: 716c5d4a01d1734449f70cd575e04390, type: 3}
+  constructionPrefab: {fileID: 1844372635997890233, guid: e62fce10a3a378e45bfcf85b01c5944e, type: 3}
+  icon: {fileID: 0}
+  maxHealth: 100
+  costMetal: 50
+  costOil: 0
+  costPopulation: 0
+  buildTime: 8
+  description: House, increase pop by 5

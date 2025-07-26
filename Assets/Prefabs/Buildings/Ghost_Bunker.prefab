@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8803717982568782051}
-  m_Layer: 9
+  m_Layer: 12
   m_Name: SelectionHighlight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -43,12 +43,8 @@ GameObject:
   - component: {fileID: 5003202164992843893}
   - component: {fileID: 2563366747296825977}
   - component: {fileID: 1930953295558456715}
-  - component: {fileID: 502058921640140901}
-  - component: {fileID: 3821296986436076231}
-  - component: {fileID: 1498329043139969130}
-  - component: {fileID: -3458228637916920475}
-  m_Layer: 9
-  m_Name: Barrack
+  m_Layer: 12
+  m_Name: Ghost_Bunker
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -64,7 +60,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
   m_LocalPosition: {x: -1.22, y: 1, z: -4.6}
-  m_LocalScale: {x: 5, y: 4, z: 3}
+  m_LocalScale: {x: 3, y: 1, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6717922099548006100}
@@ -102,7 +98,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 08bcd430268cdee40821dd91d9bb929a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -124,90 +120,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &502058921640140901
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1844372635997890233}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &3821296986436076231
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1844372635997890233}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b53c1913a169ba347964c67b7d1d5cfa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  buildingName: Kaserne
-  costMetal: 100
-  costOil: 50
-  costPopulation: 2
-  buildingUnderConstructionVisual: {fileID: 0}
-  buildTime: 10
-  maxHealth: 100
-  uiPrefab: {fileID: 0}
-  availableUnits:
-  - {fileID: 11400000, guid: 489e844cf0cb3f848bad42fd23e0204a, type: 2}
-  - {fileID: 11400000, guid: 0612e153539ea8d48b44b4f9dfa758d6, type: 2}
-  - {fileID: 11400000, guid: 7b03b2eb6a759a246879295c6576393d, type: 2}
-  spawnPoint: {fileID: 6717922099548006100}
-  rallyPointPrefab: {fileID: 7799845591406338313, guid: 360d96c153ae17c44ac54b2c5ef6b19d, type: 3}
-  lineRenderer: {fileID: 0}
---- !u!114 &1498329043139969130
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1844372635997890233}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3af914f1776cf1841b0935d09d3d0d41, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  buildingName: Barrack
-  costMetal: 100
-  costOil: 50
-  costPopulation: 2
-  buildingUnderConstructionVisual: {fileID: 0}
-  buildTime: 10
-  maxHealth: 100
-  uiPrefab: {fileID: 1175801689726128610, guid: 2b064ba488279e8458e377f613d0fd73, type: 3}
---- !u!208 &-3458228637916920475
-NavMeshObstacle:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1844372635997890233}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Shape: 1
-  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
-  m_MoveThreshold: 0.1
-  m_Carve: 1
-  m_CarveOnlyStationary: 1
-  m_Center: {x: 0, y: 0, z: 0}
-  m_TimeToStationary: 0.5
 --- !u!1 &5124743474511737819
 GameObject:
   m_ObjectHideFlags: 0
@@ -220,7 +132,7 @@ GameObject:
   - component: {fileID: 3373743942815057687}
   - component: {fileID: 8634334642203730013}
   - component: {fileID: 7315661048540461038}
-  m_Layer: 9
+  m_Layer: 12
   m_Name: Quad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -326,7 +238,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6717922099548006100}
-  m_Layer: 9
+  m_Layer: 12
   m_Name: SpawnPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}

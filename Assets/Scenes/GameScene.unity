@@ -155,14 +155,19 @@ MonoBehaviour:
   oilNodePrefab: {fileID: 8736168766601543385, guid: 4727161ad5ac1a949bbd654f9c57cf3a, type: 3}
   startPositions:
   - {x: 8, y: 0, z: 14}
-  - {x: 0, y: 0, z: -20}
+  - {x: 0, y: 0, z: -140}
   metalNodePositions:
   - {x: 4, y: 0, z: 0}
   - {x: 8, y: 0, z: 0}
   - {x: 12, y: 0, z: 0}
+  - {x: 4, y: 0, z: -126}
+  - {x: 8, y: 0, z: -126}
+  - {x: 12, y: 0, z: -126}
   oilNodePositions:
   - {x: 0, y: 0, z: 0}
   - {x: 16, y: 0, z: 0}
+  - {x: 0, y: 0, z: -126}
+  - {x: 16, y: 0, z: -126}
 --- !u!4 &4467113
 Transform:
   m_ObjectHideFlags: 0
@@ -2845,7 +2850,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 25, y: 1, z: 25}
+  m_LocalScale: {x: 35, y: 1, z: 35}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}

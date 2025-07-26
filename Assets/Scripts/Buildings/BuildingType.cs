@@ -4,8 +4,8 @@ public enum BuildingType
     HQ,
     Barracks,
     Refinery,
-    Factory,
-    PowerPlant,
-    SupplyDepot,
-    // beliebig erweiterbar
+    House,
+    Bunker,
+    Trench,
+    Smithy,
 }

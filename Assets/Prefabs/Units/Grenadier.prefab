@@ -153,7 +153,7 @@ MonoBehaviour:
   selectionCircle: {fileID: 5232681796306741912}
   waypointPrefab: {fileID: 7799845591406338313, guid: 360d96c153ae17c44ac54b2c5ef6b19d, type: 3}
   healthBarPrefab: {fileID: 8040633652107454988, guid: 7e26b063a4a70fa4e85656b08614d32a, type: 3}
-  unitData: {fileID: 0}
+  unitData: {fileID: 11400000, guid: 0612e153539ea8d48b44b4f9dfa758d6, type: 2}
   harvestRange: 1.5
   harvestTime: 2
   harvestAmount: 10
@@ -278,6 +278,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   OnHealthChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  OnDamaged:
     m_PersistentCalls:
       m_Calls: []
   OnDeath:
