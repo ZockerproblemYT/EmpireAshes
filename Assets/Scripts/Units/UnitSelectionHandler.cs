@@ -314,6 +314,10 @@ public class UnitSelectionHandler : MonoBehaviour
                 uiManager.ShowFor(pb);
             }
 
+            Smithy smithy = building.GetComponent<Smithy>();
+            if (smithy != null && SmithyUpgradeUI.Instance != null)
+                SmithyUpgradeUI.Instance.ShowFor(smithy);
+
             workerUI?.Refresh();
         }
     }
@@ -353,6 +357,7 @@ public class UnitSelectionHandler : MonoBehaviour
 
         Debug.Log("🧹 Auswahl geleert.");
         uiManager?.Hide();
+        SmithyUpgradeUI.Instance?.Hide();
         workerUI?.Refresh();
     }
 }

@@ -14,14 +14,13 @@ GameObject:
   - component: {fileID: 1181987493528851566}
   - component: {fileID: 4071730970162235529}
   - component: {fileID: -1853291328588313240}
-  - component: {fileID: 877618644641794252}
   - component: {fileID: -8587520196296337582}
   m_Layer: 9
   m_Name: Trench
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &3016966510372149757
 Transform:
@@ -138,26 +137,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9a0c126a4d83404439cd725e153dbe2a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  buildingName: 
-  costMetal: 0
-  costOil: 0
-  costPopulation: 0
-  buildingUnderConstructionVisual: {fileID: 0}
-  buildTime: 10
-  maxHealth: 100
-  uiPrefab: {fileID: 0}
---- !u!114 &877618644641794252
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1859264426425977078}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3af914f1776cf1841b0935d09d3d0d41, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   buildingName: 

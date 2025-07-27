@@ -1,4 +1,4 @@
-using System.Collections;
+ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,6 +16,7 @@ public class SmithyUpgradeUI : MonoBehaviour
     public class UpgradeButton
     {
         public Button button;
+        public Image iconImage;
         public Image progressFill;
         public UnitUpgradeData data;
         public GameObject nextButton;
@@ -35,8 +36,28 @@ public class SmithyUpgradeUI : MonoBehaviour
     [Header("Armor Upgrades")]
     public UpgradeColumn armorColumn;
 
+    [Tooltip("Wurzelobjekt für das UI")]
+    [SerializeField] private GameObject panelRoot;
+
     [Tooltip("Fraktion für diese Upgrades")]
     public Faction faction;
+
+    public static SmithyUpgradeUI Instance { get; private set; }
+
+    private Smithy currentSmithy;
+
+    void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        if (panelRoot != null)
+            panelRoot.SetActive(false);
+    }
 
     void Start()
     {
@@ -67,6 +88,9 @@ public class SmithyUpgradeUI : MonoBehaviour
         u.button.onClick.AddListener(() => OnResearch(u));
         if (u.progressFill != null)
             u.progressFill.fillAmount = 0f;
+        Image img = u.iconImage != null ? u.iconImage : u.button.GetComponent<Image>();
+        if (img != null && u.data != null && u.data.icon != null)
+            img.sprite = u.data.icon;
     }
 
     private void OnResearch(UpgradeButton upgrade)
@@ -84,6 +108,28 @@ public class SmithyUpgradeUI : MonoBehaviour
         }
 
         StartCoroutine(ResearchRoutine(upgrade));
+    }
+
+    public void ShowFor(Smithy smithy)
+    {
+        currentSmithy = smithy;
+        if (smithy != null)
+        {
+            faction = smithy.GetOwner();
+            if (panelRoot != null)
+                panelRoot.SetActive(true);
+        }
+        else
+        {
+            Hide();
+        }
+    }
+
+    public void Hide()
+    {
+        currentSmithy = null;
+        if (panelRoot != null)
+            panelRoot.SetActive(false);
     }
 
     private IEnumerator ResearchRoutine(UpgradeButton upgrade)
