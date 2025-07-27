@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: -1853291328588313240}
   - component: {fileID: 877618644641794252}
   - component: {fileID: -8587520196296337582}
-  m_Layer: 10
+  m_Layer: 9
   m_Name: Trench
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -183,3 +183,4 @@ MonoBehaviour:
   attackRange: 8
   attackDamage: 10
   attackInterval: 1
+  owner: {fileID: 0}

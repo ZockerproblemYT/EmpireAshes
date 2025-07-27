@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: -1402224837166849387}
   - component: {fileID: -4720375030117283878}
   - component: {fileID: 5185959149195809196}
-  m_Layer: 10
+  m_Layer: 9
   m_Name: Bunker
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -184,3 +184,4 @@ MonoBehaviour:
   attackRange: 10
   attackDamage: 14
   attackInterval: 1
+  owner: {fileID: 0}
