@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ac92823c78c9e445aa5da1c30ed7846, type: 3}
+  m_Name: Weapon_1
+  m_EditorClassIdentifier: 
+  upgradeName: Weapon Infantry 1
+  description: '+1 Dmg
+
+    +2 Bonus Dmg'
+  icon: {fileID: 21300000, guid: 39a332161f26e764d8a43e808513182d, type: 3}
+  bonusDamage: 1
+  bonusArmor: 0
+  bonusHealth: 0
+  bonusDamageType: 0
+  bonusDamageAgainstType: 2
+  researchTime: 5
+  costMetal: 100
+  costOil: 50
+  affectedUnitRole: 0

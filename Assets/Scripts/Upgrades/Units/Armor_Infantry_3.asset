@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ac92823c78c9e445aa5da1c30ed7846, type: 3}
+  m_Name: Armor_Infantry_3
+  m_EditorClassIdentifier: 
+  upgradeName: Armor Infantry 3
+  description: +1 Armor
+  icon: {fileID: 21300000, guid: 139b9c7398a15284a90f338d4e209c94, type: 3}
+  bonusDamage: 0
+  bonusArmor: 1
+  bonusHealth: 0
+  bonusDamageType: 0
+  bonusDamageAgainstType: 0
+  researchTime: 5
+  costMetal: 100
+  costOil: 50
+  affectedUnitRole: 0

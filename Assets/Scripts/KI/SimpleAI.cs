@@ -237,6 +237,9 @@ public class SimpleAI : MonoBehaviour
         if (!ResourceManager.Instance.HasEnough(faction, data.costMetal, data.costOil, data.costPopulation))
             return false;
 
+        if (!FindValidBuildPosition(data, ref position))
+            return false;
+
         GameObject siteObj = Instantiate(data.constructionPrefab, position, Quaternion.identity);
         BuildingConstructionSite site = siteObj.GetComponent<BuildingConstructionSite>();
         if (site != null)
@@ -257,5 +260,69 @@ public class SimpleAI : MonoBehaviour
 
         Destroy(siteObj);
         return false;
+    }
+
+    private bool FindValidBuildPosition(BuildingData data, ref Vector3 position)
+    {
+        if (IsPlacementValid(data, position))
+            return true;
+
+        float[] radii = { 4f, 6f, 8f, 10f };
+        for (int r = 0; r < radii.Length; r++)
+        {
+            for (int i = 0; i < 8; i++)
+            {
+                Vector3 offset = Quaternion.Euler(0f, i * 45f, 0f) * Vector3.forward * radii[r];
+                Vector3 candidate = hq.transform.position + offset;
+                if (IsPlacementValid(data, candidate))
+                {
+                    position = candidate;
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private bool IsPlacementValid(BuildingData data, Vector3 position)
+    {
+        var renderer = data.constructionPrefab.GetComponentInChildren<Renderer>();
+        Vector3 halfExtents = renderer != null ? renderer.bounds.extents : Vector3.one;
+
+        Collider[] colliders = Physics.OverlapBox(position, halfExtents);
+        bool isOverOil = false;
+        bool isOverMetal = false;
+
+        foreach (var col in colliders)
+        {
+            if (col.GetComponent<OilNode>() != null)
+            {
+                isOverOil = true;
+                continue;
+            }
+            if (col.GetComponent<MetalNode>() != null)
+            {
+                isOverMetal = true;
+                continue;
+            }
+
+            if (!col.isTrigger)
+                return false;
+        }
+
+        switch (data.buildingType)
+        {
+            case BuildingType.Refinery:
+                if (!isOverOil)
+                    return false;
+                break;
+            default:
+                if (isOverOil || isOverMetal)
+                    return false;
+                break;
+        }
+
+        return true;
     }
 }
