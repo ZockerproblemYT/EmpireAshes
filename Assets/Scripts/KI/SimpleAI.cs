@@ -30,6 +30,15 @@ public class SimpleAI : MonoBehaviour
     private bool builtHouse = false;
     private bool builtBunker = false;
 
+    // Layer mask used for placement checks (mirrors BuildingPlacer settings)
+    private LayerMask obstacleLayer;
+
+    private void Awake()
+    {
+        // Mirror the obstacle mask from BuildingPlacer
+        obstacleLayer = LayerMask.GetMask("Default", "Water", "Selectable", "Resource", "Ghost");
+    }
+
     public void Initialize(Faction faction, ProductionBuilding hq, ProductionBuilding barracks, UnitData worker, UnitData combat)
     {
         this.faction = faction;
@@ -290,25 +299,27 @@ public class SimpleAI : MonoBehaviour
         var renderer = data.constructionPrefab.GetComponentInChildren<Renderer>();
         Vector3 halfExtents = renderer != null ? renderer.bounds.extents : Vector3.one;
 
-        Collider[] colliders = Physics.OverlapBox(position, halfExtents);
-        bool isOverOil = false;
-        bool isOverMetal = false;
+        Collider[] colliders = Physics.OverlapBox(position, halfExtents, Quaternion.identity, obstacleLayer);
 
         foreach (var col in colliders)
         {
-            if (col.GetComponent<OilNode>() != null)
-            {
-                isOverOil = true;
+            if (col.GetComponent<OilNode>() != null || col.GetComponent<MetalNode>() != null)
                 continue;
-            }
-            if (col.GetComponent<MetalNode>() != null)
-            {
-                isOverMetal = true;
-                continue;
-            }
 
             if (!col.isTrigger)
                 return false;
+        }
+
+        bool isOverOil = false;
+        bool isOverMetal = false;
+
+        Collider[] hits = Physics.OverlapSphere(position, 1.5f);
+        foreach (var hit in hits)
+        {
+            if (hit.GetComponent<OilNode>() != null)
+                isOverOil = true;
+            if (hit.GetComponent<MetalNode>() != null)
+                isOverMetal = true;
         }
 
         switch (data.buildingType)
@@ -317,6 +328,7 @@ public class SimpleAI : MonoBehaviour
                 if (!isOverOil)
                     return false;
                 break;
+
             default:
                 if (isOverOil || isOverMetal)
                     return false;
