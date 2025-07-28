@@ -22,7 +22,9 @@ public class Building : MonoBehaviour
 
     [Header("UI")]
     [SerializeField] private GameObject uiPrefab;
+    [SerializeField] private GameObject selectionBoxPrefab;
     private BuildingUIController uiInstance;
+    private GameObject selectionBoxInstance;
 
     protected Faction owner;
     private bool isDestroyed = false;
@@ -110,6 +112,11 @@ public class Building : MonoBehaviour
 
         if (uiInstance != null)
             uiInstance.SetHPVisible(showHPBar);
+
+        if (selected)
+            ShowSelectionBox();
+        else
+            HideSelectionBox();
     }
 
     public bool ShouldShowHP() => showHPBar;
@@ -144,6 +151,41 @@ public class Building : MonoBehaviour
     public void AssignUIController(BuildingUIController controller)
     {
         uiInstance = controller;
+    }
+
+    void ShowSelectionBox()
+    {
+        if (selectionBoxPrefab == null)
+            return;
+
+        if (selectionBoxInstance == null)
+            selectionBoxInstance = Instantiate(selectionBoxPrefab, transform);
+
+        Collider col = GetComponentInChildren<Collider>();
+        if (col != null)
+        {
+            Bounds b = col.bounds;
+            // convert world bounds to local space so scaling isn't affected by parent scale
+            selectionBoxInstance.transform.localPosition = transform.InverseTransformPoint(b.center);
+            Vector3 worldSize = new Vector3(b.size.x + 1f, b.size.y, b.size.z + 1f);
+            Vector3 lossy = transform.lossyScale;
+            if (lossy.x != 0 && lossy.y != 0 && lossy.z != 0)
+            {
+                selectionBoxInstance.transform.localScale = new Vector3(
+                    worldSize.x / lossy.x,
+                    worldSize.y / lossy.y,
+                    worldSize.z / lossy.z
+                );
+            }
+        }
+
+        selectionBoxInstance.SetActive(true);
+    }
+
+    void HideSelectionBox()
+    {
+        if (selectionBoxInstance != null)
+            selectionBoxInstance.SetActive(false);
     }
 
     public void MarkAsCompleted()

@@ -5273,7 +5273,7 @@ MonoBehaviour:
       progressFill: {fileID: 0}
       data: {fileID: 11400000, guid: bb249d8fe9b875d40a27911e2a37906e, type: 2}
       nextButton: {fileID: 0}
-  panelRoot: {fileID: 1859264426425977078, guid: 354f7d8a2f9b85845a30cea3f6171daa, type: 3}
+  panelRoot: {fileID: 1582371113}
   faction: {fileID: 11400000, guid: b58aa035149e2a94f8be0ee584bee7e6, type: 2}
 --- !u!114 &1582371115
 MonoBehaviour:
@@ -6726,6 +6726,7 @@ MonoBehaviour:
   buildTime: 10
   maxHealth: 100
   uiPrefab: {fileID: 0}
+  selectionBoxPrefab: {fileID: 0}
 --- !u!1 &2132384172
 GameObject:
   m_ObjectHideFlags: 0

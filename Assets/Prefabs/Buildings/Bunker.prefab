@@ -147,7 +147,8 @@ MonoBehaviour:
   buildingUnderConstructionVisual: {fileID: 0}
   buildTime: 10
   maxHealth: 100
-  uiPrefab: {fileID: 0}
+  uiPrefab: {fileID: 1175801689726128610, guid: 2b064ba488279e8458e377f613d0fd73, type: 3}
+  selectionBoxPrefab: {fileID: 9025384162311602596, guid: 89cde1663e22e6b45917e2ce66bb520a, type: 3}
   infantryDamageMultiplier: 0.5
 --- !u!114 &-4720375030117283878
 MonoBehaviour:
@@ -169,6 +170,7 @@ MonoBehaviour:
   buildTime: 10
   maxHealth: 100
   uiPrefab: {fileID: 0}
+  selectionBoxPrefab: {fileID: 0}
 --- !u!114 &5185959149195809196
 MonoBehaviour:
   m_ObjectHideFlags: 0
