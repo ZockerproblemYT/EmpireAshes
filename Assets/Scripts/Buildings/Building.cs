@@ -153,6 +153,11 @@ public class Building : MonoBehaviour
         uiInstance = controller;
     }
 
+    public BuildingUIController GetUIController()
+    {
+        return uiInstance;
+    }
+
     void ShowSelectionBox()
     {
         if (selectionBoxPrefab == null)

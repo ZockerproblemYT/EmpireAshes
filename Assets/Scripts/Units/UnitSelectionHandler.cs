@@ -84,13 +84,18 @@ public class UnitSelectionHandler : MonoBehaviour
                 return;
             }
 
-            if (Vector2.Distance(startPos, Input.mousePosition) < 10f)
+            bool placed = BuildingPlacer.Instance != null && BuildingPlacer.Instance.ConsumeJustPlaced();
+
+            if (!placed)
             {
-                SingleClickSelect();
-            }
-            else
-            {
-                SelectByBox();
+                if (Vector2.Distance(startPos, Input.mousePosition) < 10f)
+                {
+                    SingleClickSelect();
+                }
+                else
+                {
+                    SelectByBox();
+                }
             }
 
             selectionBox.gameObject.SetActive(false);

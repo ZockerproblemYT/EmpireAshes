@@ -18,7 +18,19 @@ public class BuildingPlacer : MonoBehaviour
     private BuildingData currentData;
     private Faction playerFaction;
     private bool isPlacing = false;
+    private bool justPlaced = false;
+
     public bool IsPlacing => isPlacing;
+
+    /// <summary>
+    /// Returns true if a building has been placed since the last check.
+    /// </summary>
+    public bool ConsumeJustPlaced()
+    {
+        bool placed = justPlaced;
+        justPlaced = false;
+        return placed;
+    }
 
     private void Awake()
     {
@@ -128,16 +140,31 @@ public class BuildingPlacer : MonoBehaviour
             currentData.costOil,
             currentData.costPopulation);
 
+        bool shift = Input.GetKey(KeyCode.LeftShift);
+
         foreach (var unit in UnitSelectionHandler.Instance.SelectedUnits)
         {
             if (unit.role == UnitRole.Worker)
             {
-                unit.AssignToConstruction(site);
-                Debug.Log($"👷 Worker zugewiesen: {unit.name}");
+                if (shift)
+                    unit.QueueConstruction(site);
+                else
+                    unit.AssignToConstruction(site);
+
+                Debug.Log($"👷 Worker zugewiesen: {unit.name} | Queue: {shift}");
             }
         }
 
-        CancelPlacement();
+        justPlaced = true;
+
+        if (shift)
+        {
+            StartPlacing(currentData, playerFaction);
+        }
+        else
+        {
+            CancelPlacement();
+        }
     }
 
     private void CancelPlacement()

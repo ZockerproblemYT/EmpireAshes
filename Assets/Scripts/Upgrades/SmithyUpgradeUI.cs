@@ -1,4 +1,4 @@
- using System.Collections;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -133,11 +133,6 @@ public class SmithyUpgradeUI : MonoBehaviour
     public void Hide()
     {
         currentSmithy = null;
-        if (activeResearch != null)
-        {
-            StopCoroutine(activeResearch);
-            activeResearch = null;
-        }
         if (panelRoot != null)
             panelRoot.SetActive(false);
     }

@@ -84,6 +84,7 @@ public class SimpleAI : MonoBehaviour
     {
         if (!initialized || faction == null) return;
 
+        RefreshProductionBuildings();
         CollectUnits();
         HandleProduction();
         HandleConstruction();
@@ -168,6 +169,28 @@ public class SimpleAI : MonoBehaviour
             }
         }
         return best;
+    }
+
+    private void RefreshProductionBuildings()
+    {
+        ProductionBuilding[] all = FindObjectsByType<ProductionBuilding>(FindObjectsSortMode.None);
+
+        foreach (var pb in all)
+        {
+            if (pb == null) continue;
+            var building = pb.GetComponent<Building>();
+            if (building == null || !building.IsCompleted || building.GetOwner() != faction)
+                continue;
+
+            if (hq == null && workerUnit != null && pb.availableUnits.Contains(workerUnit))
+                hq = pb;
+
+            if (barracks == null && combatUnit != null && pb.availableUnits.Contains(combatUnit))
+                barracks = pb;
+
+            if (hq != null && barracks != null)
+                break;
+        }
     }
 
     private void HandleAttack()
