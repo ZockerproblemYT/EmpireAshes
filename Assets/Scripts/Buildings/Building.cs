@@ -159,7 +159,11 @@ public class Building : MonoBehaviour
             return;
 
         if (selectionBoxInstance == null)
-            selectionBoxInstance = Instantiate(selectionBoxPrefab, transform);
+            selectionBoxInstance = Instantiate(
+                selectionBoxPrefab,
+                transform.position,
+                Quaternion.identity,
+                transform);
 
         Collider col = GetComponentInChildren<Collider>();
         if (col != null)
@@ -179,6 +183,7 @@ public class Building : MonoBehaviour
             }
         }
 
+        selectionBoxInstance.transform.rotation = Quaternion.identity;
         selectionBoxInstance.SetActive(true);
     }
 

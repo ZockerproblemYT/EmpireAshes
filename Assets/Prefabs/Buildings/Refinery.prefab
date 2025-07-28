@@ -108,7 +108,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1.1, y: 1, z: 1.1}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!208 &4071730970162235529
 NavMeshObstacle:
@@ -146,4 +146,4 @@ MonoBehaviour:
   buildTime: 10
   maxHealth: 100
   uiPrefab: {fileID: 1175801689726128610, guid: 2b064ba488279e8458e377f613d0fd73, type: 3}
-  selectionBoxPrefab: {fileID: 9025384162311602596, guid: 89cde1663e22e6b45917e2ce66bb520a, type: 3}
+  selectionBoxPrefab: {fileID: 7199317963728050502, guid: c3fa9cf4478f011449e8eea14ca4bd4a, type: 3}

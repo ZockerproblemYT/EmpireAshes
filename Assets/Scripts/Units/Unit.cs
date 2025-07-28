@@ -34,6 +34,7 @@ public class Unit : MonoBehaviour
 
     private Queue<Vector3> waypoints = new Queue<Vector3>();
     private Queue<GameObject> waypointIndicators = new Queue<GameObject>();
+    private readonly Queue<System.Action> jobQueue = new Queue<System.Action>();
     private Vector3? currentWaypoint = null;
     private GameObject currentIndicator = null;
     private HealthBarUI spawnedHealthBar;
@@ -530,14 +531,21 @@ private void UpdateWaypointLine()
                     ConfirmArrivalAtConstruction();
             }},
             { State.Building, () => {
-                currentSite?.Build(Time.deltaTime);
+                if (currentSite == null || currentSite.IsComplete())
+                {
+                    CancelWorkerJob(false);
+                }
+                else
+                {
+                    currentSite.Build(Time.deltaTime);
+                }
             }}
         };
     }
 
-    public void StartHarvestCycle(MetalNode node, DropOffBuilding drop)
+    public void StartHarvestCycle(MetalNode node, DropOffBuilding drop, bool keepQueue = false)
     {
-        CancelWorkerJob();
+        CancelWorkerJob(!keepQueue);
         currentNode = node;
         currentDropOff = drop;
         isFarmingOil = false;
@@ -548,9 +556,9 @@ private void UpdateWaypointLine()
         MoveTo(resourceTarget, false);
     }
 
-    public void StartOilCycle(Refinery refinery, DropOffBuilding drop)
+    public void StartOilCycle(Refinery refinery, DropOffBuilding drop, bool keepQueue = false)
     {
-        CancelWorkerJob();
+        CancelWorkerJob(!keepQueue);
         currentRefinery = refinery;
         currentDropOff = drop;
         isFarmingOil = true;
@@ -609,9 +617,9 @@ private void UpdateWaypointLine()
 }
 
 
-    public void AssignToConstruction(BuildingConstructionSite site)
+    public void AssignToConstruction(BuildingConstructionSite site, bool keepQueue = false)
     {
-        CancelWorkerJob();
+        CancelWorkerJob(!keepQueue);
         currentSite = site;
         hasConfirmedArrival = false;
         site.AddBuilder(this);
@@ -627,7 +635,7 @@ private void UpdateWaypointLine()
         agent.ResetPath();
     }
 
-    public void CancelWorkerJob()
+    public void CancelWorkerJob(bool clearQueue = true)
     {
         agent.ResetPath();
         currentNode = null;
@@ -645,6 +653,10 @@ private void UpdateWaypointLine()
         hasConfirmedArrival = false;
         currentState = State.Idle;
         ClearWaypoints();
+        if (clearQueue)
+            jobQueue.Clear();
+        else
+            ProcessNextJob();
     }
 
     private void ClearWaypoints()
@@ -659,6 +671,33 @@ private void UpdateWaypointLine()
         currentIndicator = null;
         agent.ResetPath();
         OnWaypointsCleared?.Invoke();
+    }
+
+    private void ProcessNextJob()
+    {
+        if (currentState != State.Idle || jobQueue.Count == 0)
+            return;
+
+        var job = jobQueue.Dequeue();
+        job?.Invoke();
+    }
+
+    public void QueueConstruction(BuildingConstructionSite site)
+    {
+        if (site == null) return;
+        jobQueue.Enqueue(() => AssignToConstruction(site, true));
+    }
+
+    public void QueueHarvestCycle(MetalNode node, DropOffBuilding drop)
+    {
+        if (node == null || drop == null) return;
+        jobQueue.Enqueue(() => StartHarvestCycle(node, drop, true));
+    }
+
+    public void QueueOilCycle(Refinery refinery, DropOffBuilding drop)
+    {
+        if (refinery == null || drop == null) return;
+        jobQueue.Enqueue(() => StartOilCycle(refinery, drop, true));
     }
 
     private bool IsNear(Vector3 pos, float range)

@@ -46,6 +46,8 @@ public class SmithyUpgradeUI : MonoBehaviour
 
     private Smithy currentSmithy;
 
+    private Coroutine activeResearch;
+
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -101,13 +103,16 @@ public class SmithyUpgradeUI : MonoBehaviour
         if (UpgradeManager.Instance != null && UpgradeManager.Instance.IsResearched(faction, upgrade.data))
             return;
 
+        if (activeResearch != null)
+            return;
+
         if (!ResourceManager.Instance.HasEnough(faction, upgrade.data.costMetal, upgrade.data.costOil))
         {
             Debug.Log("⛔ Not enough resources for upgrade");
             return;
         }
 
-        StartCoroutine(ResearchRoutine(upgrade));
+        activeResearch = StartCoroutine(ResearchRoutine(upgrade));
     }
 
     public void ShowFor(Smithy smithy)
@@ -128,6 +133,11 @@ public class SmithyUpgradeUI : MonoBehaviour
     public void Hide()
     {
         currentSmithy = null;
+        if (activeResearch != null)
+        {
+            StopCoroutine(activeResearch);
+            activeResearch = null;
+        }
         if (panelRoot != null)
             panelRoot.SetActive(false);
     }
@@ -138,6 +148,13 @@ public class SmithyUpgradeUI : MonoBehaviour
         if (upgrade.button != null)
             upgrade.button.interactable = false;
 
+        BuildingUIController ui = currentSmithy != null ? currentSmithy.GetUIController() : null;
+        if (ui == null && currentSmithy != null)
+        {
+            currentSmithy.SpawnUI();
+            ui = currentSmithy.GetUIController();
+        }
+
         float timer = 0f;
         float duration = Mathf.Max(0.1f, upgrade.data.researchTime);
 
@@ -146,15 +163,21 @@ public class SmithyUpgradeUI : MonoBehaviour
             timer += Time.deltaTime;
             if (upgrade.progressFill != null)
                 upgrade.progressFill.fillAmount = timer / duration;
+            ui?.SetUpgradeProgress(timer / duration);
             yield return null;
         }
 
         if (upgrade.progressFill != null)
             upgrade.progressFill.fillAmount = 1f;
+        ui?.SetUpgradeProgress(1f);
 
         UpgradeManager.Instance.ApplyUpgrade(faction, upgrade.data);
 
+        if (upgrade.button != null)
+            upgrade.button.gameObject.SetActive(false);
         if (upgrade.nextButton != null)
             upgrade.nextButton.SetActive(true);
+
+        activeResearch = null;
     }
 }

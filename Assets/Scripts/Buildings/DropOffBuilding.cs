@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class DropOffBuilding : MonoBehaviour
 {
-    public static readonly List<DropOffBuilding> Instances = new();
+    public static readonly List<DropOffBuilding> Instances = new List<DropOffBuilding>();
 
     private void OnEnable()
     {

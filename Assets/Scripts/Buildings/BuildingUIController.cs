@@ -13,6 +13,9 @@ public class BuildingUIController : MonoBehaviour
     [SerializeField] private Image hpBar;
     [SerializeField] private Image buildProgressBar;
 
+    private bool showUpgradeProgress = false;
+    private float upgradeProgress = 0f;
+
     [Header("Offset über Gebäude")]
     [SerializeField] private float defaultYOffset = 1.0f;
     private float dynamicYOffset = 1.0f;
@@ -45,6 +48,37 @@ public class BuildingUIController : MonoBehaviour
         hpVisible = visible;
         if (hpCanvasGroup != null)
             hpCanvasGroup.alpha = visible ? 1f : 0f;
+    }
+
+    public void SetUpgradeProgress(float progress)
+    {
+        if (buildProgressBar == null)
+            return;
+
+        upgradeProgress = Mathf.Clamp01(progress);
+        showUpgradeProgress = true;
+
+        Transform barRoot = buildProgressBar.transform.parent;
+        if (barRoot != null && !barRoot.gameObject.activeSelf)
+            barRoot.gameObject.SetActive(true);
+
+        buildProgressBar.fillAmount = upgradeProgress;
+
+        if (upgradeProgress >= 1f)
+        {
+            showUpgradeProgress = false;
+            if (barRoot != null)
+                barRoot.gameObject.SetActive(false);
+        }
+    }
+
+    public void HideUpgradeProgress()
+    {
+        showUpgradeProgress = false;
+        if (buildProgressBar == null) return;
+        Transform barRoot = buildProgressBar.transform.parent;
+        if (barRoot != null)
+            barRoot.gameObject.SetActive(false);
     }
 
     public void Initialize(Transform target, Building building, BuildingConstructionSite site)
@@ -122,7 +156,19 @@ public class BuildingUIController : MonoBehaviour
         {
             Transform barRoot = buildProgressBar.transform.parent;
 
-            if (constructionSite != null)
+            if (showUpgradeProgress)
+            {
+                buildProgressBar.fillAmount = upgradeProgress;
+                if (barRoot != null && !barRoot.gameObject.activeSelf)
+                    barRoot.gameObject.SetActive(true);
+
+                if (upgradeProgress >= 1f && barRoot != null)
+                {
+                    barRoot.gameObject.SetActive(false);
+                    showUpgradeProgress = false;
+                }
+            }
+            else if (constructionSite != null)
             {
                 buildProgressBar.fillAmount = constructionSite.GetProgress01();
 

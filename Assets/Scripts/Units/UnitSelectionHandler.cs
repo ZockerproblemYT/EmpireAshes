@@ -144,7 +144,7 @@ public class UnitSelectionHandler : MonoBehaviour
                     {
                         if (!shift)
                             unit.CancelWorkerJob();
-                        unit.AssignToConstruction(site);
+                        unit.AssignToConstruction(site, shift);
                         continue;
                     }
 

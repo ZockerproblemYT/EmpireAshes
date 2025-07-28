@@ -59,7 +59,7 @@ public class BuildingPlacer : MonoBehaviour
             PlaceBuilding();
         }
 
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetMouseButtonDown(1))
         {
             Debug.Log("❌ Platzierung abgebrochen.");
             CancelPlacement();
