@@ -25,6 +25,7 @@ public class Building : MonoBehaviour
     [SerializeField] private GameObject selectionBoxPrefab;
     private BuildingUIController uiInstance;
     private GameObject selectionBoxInstance;
+    private float selectionBoxYScale = -1f;
 
     protected Faction owner;
     private bool isDestroyed = false;
@@ -164,11 +165,14 @@ public class Building : MonoBehaviour
             return;
 
         if (selectionBoxInstance == null)
+        {
             selectionBoxInstance = Instantiate(
                 selectionBoxPrefab,
                 transform.position,
                 Quaternion.identity,
                 transform);
+            selectionBoxYScale = selectionBoxInstance.transform.localScale.y;
+        }
 
         Collider col = GetComponentInChildren<Collider>();
         if (col != null)
@@ -180,9 +184,10 @@ public class Building : MonoBehaviour
             Vector3 lossy = transform.lossyScale;
             if (lossy.x != 0 && lossy.y != 0 && lossy.z != 0)
             {
+                // only scale X and Z to fit collider, keep Y scale from prefab
                 selectionBoxInstance.transform.localScale = new Vector3(
                     worldSize.x / lossy.x,
-                    worldSize.y / lossy.y,
+                    selectionBoxYScale,
                     worldSize.z / lossy.z
                 );
             }

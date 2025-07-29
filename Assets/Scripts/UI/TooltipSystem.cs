@@ -2,6 +2,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+public enum TooltipResourceType { Metal, Oil, Population }
+
 public class TooltipSystem : MonoBehaviour
 {
     public static TooltipSystem Instance;
@@ -10,6 +12,11 @@ public class TooltipSystem : MonoBehaviour
     public RectTransform backgroundRectTransform;  // Das Hauptobjekt (Root) des Tooltips
     public TextMeshProUGUI headerText;
     public TextMeshProUGUI contentText;
+
+    [Header("Sprite Assets")] 
+    [Tooltip("Sprite Asset für Metall-Icon")] public TMP_SpriteAsset metalSpriteAsset; 
+    [Tooltip("Sprite Asset für Öl-Icon")] public TMP_SpriteAsset oilSpriteAsset; 
+    [Tooltip("Sprite Asset für Bevölkerungs-Icon")] public TMP_SpriteAsset populationSpriteAsset;
     public Vector2 mouseOffset = new Vector2(30f, -30f);  // Rechts oberhalb
 
     private Canvas parentCanvas;
@@ -82,6 +89,22 @@ public class TooltipSystem : MonoBehaviour
             return;
         }
 
+        // Sprite Assets zuweisen, sodass alle Ressourcen-Icons genutzt werden können
+        TMP_SpriteAsset primaryAsset = metalSpriteAsset ?? oilSpriteAsset ?? populationSpriteAsset;
+        if (primaryAsset != null)
+        {
+            headerText.spriteAsset = primaryAsset;
+            contentText.spriteAsset = primaryAsset;
+
+            var fallbacks = new System.Collections.Generic.List<TMP_SpriteAsset>();
+            if (primaryAsset != metalSpriteAsset && metalSpriteAsset != null) fallbacks.Add(metalSpriteAsset);
+            if (primaryAsset != oilSpriteAsset && oilSpriteAsset != null) fallbacks.Add(oilSpriteAsset);
+            if (primaryAsset != populationSpriteAsset && populationSpriteAsset != null) fallbacks.Add(populationSpriteAsset);
+
+            TMP_Settings.defaultSpriteAsset = primaryAsset;
+            TMP_Settings.fallbackSpriteAssets = fallbacks;
+        }
+
         headerText.text = header;
         contentText.text = content;
 
@@ -122,5 +145,34 @@ public class TooltipSystem : MonoBehaviour
             backgroundRectTransform.gameObject.SetActive(false);
 
         isVisible = false;
+    }
+
+    /// <summary>
+    /// Gibt das TMP-Sprite Tag für die gewünschte Ressource zurück.
+    /// </summary>
+    public static string GetResourceSpriteTag(TooltipResourceType resource)
+    {
+        if (Instance == null)
+            return string.Empty;
+
+        TMP_SpriteAsset asset = null;
+        string resourceName = resource.ToString();
+        switch (resource)
+        {
+            case TooltipResourceType.Metal:
+                asset = Instance.metalSpriteAsset;
+                break;
+            case TooltipResourceType.Oil:
+                asset = Instance.oilSpriteAsset;
+                break;
+            case TooltipResourceType.Population:
+                asset = Instance.populationSpriteAsset;
+                break;
+        }
+
+        if (asset == null)
+            return string.Empty;
+
+        return $"<sprite=\"{asset.name}\" name=\"{resourceName}\">";
     }
 }

@@ -38,6 +38,7 @@ public class SmithyUpgradeUI : MonoBehaviour
 
     [Tooltip("Wurzelobjekt für das UI")]
     [SerializeField] private GameObject panelRoot;
+    private CanvasGroup canvasGroup;
 
     [Tooltip("Fraktion für diese Upgrades")]
     public Faction faction;
@@ -58,7 +59,15 @@ public class SmithyUpgradeUI : MonoBehaviour
 
         Instance = this;
         if (panelRoot != null)
-            panelRoot.SetActive(false);
+        {
+            canvasGroup = panelRoot.GetComponent<CanvasGroup>();
+            if (canvasGroup == null)
+                canvasGroup = panelRoot.AddComponent<CanvasGroup>();
+
+            canvasGroup.alpha = 0f;
+            canvasGroup.interactable = false;
+            canvasGroup.blocksRaycasts = false;
+        }
     }
 
     void Start()
@@ -122,7 +131,18 @@ public class SmithyUpgradeUI : MonoBehaviour
         {
             faction = smithy.GetOwner();
             if (panelRoot != null)
-                panelRoot.SetActive(true);
+            {
+                if (canvasGroup != null)
+                {
+                    canvasGroup.alpha = 1f;
+                    canvasGroup.interactable = true;
+                    canvasGroup.blocksRaycasts = true;
+                }
+                else
+                {
+                    panelRoot.SetActive(true);
+                }
+            }
         }
         else
         {
@@ -134,7 +154,18 @@ public class SmithyUpgradeUI : MonoBehaviour
     {
         currentSmithy = null;
         if (panelRoot != null)
-            panelRoot.SetActive(false);
+        {
+            if (canvasGroup != null)
+            {
+                canvasGroup.alpha = 0f;
+                canvasGroup.interactable = false;
+                canvasGroup.blocksRaycasts = false;
+            }
+            else
+            {
+                panelRoot.SetActive(false);
+            }
+        }
     }
 
     private IEnumerator ResearchRoutine(UpgradeButton upgrade)

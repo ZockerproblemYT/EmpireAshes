@@ -19,8 +19,8 @@ MonoBehaviour:
   constructionPrefab: {fileID: 1844372635997890233, guid: 3b404bc3162323a4899e4ea58a0b050a, type: 3}
   icon: {fileID: 21300000, guid: 5f2345f7504985041ae3e4a75848a818, type: 3}
   maxHealth: 100
-  costMetal: 150
-  costOil: 50
+  costMetal: 200
+  costOil: 0
   costPopulation: 0
   buildTime: 15
   description: Bunker, Kugeln kommen nicht so leicht durch

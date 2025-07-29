@@ -115,10 +115,11 @@ public class WorkerUI : MonoBehaviour
             if (trigger != null)
             {
                 trigger.header = building.buildingName;
-                trigger.content = $"<sprite=0> {building.costMetal}   " +
-                                  $"<sprite=1> {building.costOil}   " +
-                                  $"<sprite=2> {building.costPopulation}\n\n" +
-                                  $"{building.description}";
+                trigger.content =
+                    $"{TooltipSystem.GetResourceSpriteTag(TooltipResourceType.Metal)} {building.costMetal}   " +
+                    $"{TooltipSystem.GetResourceSpriteTag(TooltipResourceType.Oil)} {building.costOil}   " +
+                    $"{TooltipSystem.GetResourceSpriteTag(TooltipResourceType.Population)} {building.costPopulation}\n\n" +
+                    $"{building.description}";
             }
 
             // 🖱 Klick-Funktion

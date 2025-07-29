@@ -76,17 +76,17 @@ public class TooltipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitH
 
     private string GenerateTooltipContent(UnitData data)
     {
-        return $"<sprite=0> {data.costMetal}   " +
-               $"<sprite=1> {data.costOil}   " +
-               $"<sprite=2> {data.costPopulation}\n\n" +
+        return $"{TooltipSystem.GetResourceSpriteTag(TooltipResourceType.Metal)} {data.costMetal}   " +
+               $"{TooltipSystem.GetResourceSpriteTag(TooltipResourceType.Oil)} {data.costOil}   " +
+               $"{TooltipSystem.GetResourceSpriteTag(TooltipResourceType.Population)} {data.costPopulation}\n\n" +
                $"{data.description}";
     }
 
     private string GenerateTooltipContent(BuildingData data)
     {
-        return $"<sprite=0> {data.costMetal}   " +
-               $"<sprite=1> {data.costOil}   " +
-               $"<sprite=2> {data.costPopulation}\n\n" +
+        return $"{TooltipSystem.GetResourceSpriteTag(TooltipResourceType.Metal)} {data.costMetal}   " +
+               $"{TooltipSystem.GetResourceSpriteTag(TooltipResourceType.Oil)} {data.costOil}   " +
+               $"{TooltipSystem.GetResourceSpriteTag(TooltipResourceType.Population)} {data.costPopulation}\n\n" +
                $"{data.description}";
     }
 }
