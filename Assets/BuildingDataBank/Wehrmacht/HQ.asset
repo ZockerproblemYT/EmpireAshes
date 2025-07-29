@@ -19,8 +19,8 @@ MonoBehaviour:
   constructionPrefab: {fileID: 3702571563888541682, guid: 0c08ea2357a6477468334fa90c43b69f, type: 3}
   icon: {fileID: 21300000, guid: c2e709437a303c2459187ef0cf0cdeb2, type: 3}
   maxHealth: 100
-  costMetal: 5
-  costOil: 50
+  costMetal: 500
+  costOil: 0
   costPopulation: 0
-  buildTime: 30
-  description: Hauptquartier
+  buildTime: 45
+  description: Here you can Train Worker

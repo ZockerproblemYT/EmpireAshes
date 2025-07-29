@@ -22,5 +22,5 @@ MonoBehaviour:
   costMetal: 100
   costOil: 0
   costPopulation: 0
-  buildTime: 12
+  buildTime: 25
   description: Usefull against Nnfantry

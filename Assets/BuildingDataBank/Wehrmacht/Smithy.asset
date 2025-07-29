@@ -22,5 +22,5 @@ MonoBehaviour:
   costMetal: 200
   costOil: 100
   costPopulation: 0
-  buildTime: 12
+  buildTime: 25
   description: Here you can make Upgrades

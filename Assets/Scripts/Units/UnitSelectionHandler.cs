@@ -55,6 +55,7 @@ public class UnitSelectionHandler : MonoBehaviour
         HandleLeftClick();
         HandleRightClick();
         HandleSelectionBox();
+        HandleCancel();
     }
 
     void HandleLeftClick()
@@ -225,6 +226,31 @@ public class UnitSelectionHandler : MonoBehaviour
             selectionBox.anchoredPosition = startPos;
             selectionBox.sizeDelta = new Vector2(Mathf.Abs(size.x), Mathf.Abs(size.y));
             selectionBox.pivot = new Vector2(size.x < 0 ? 1 : 0, size.y < 0 ? 1 : 0);
+        }
+    }
+
+    void HandleCancel()
+    {
+        if (!Input.GetKeyDown(KeyCode.Escape))
+            return;
+
+        bool canceled = false;
+        var buildingsCopy = new List<Building>(selectedBuildings);
+        foreach (var building in buildingsCopy)
+        {
+            var site = building.GetComponent<BuildingConstructionSite>();
+            if (site != null && !site.IsFinished())
+            {
+                site.CancelConstruction();
+                selectedBuildings.Remove(building);
+                canceled = true;
+            }
+        }
+
+        if (canceled)
+        {
+            workerUI?.Refresh();
+            uiManager?.Hide();
         }
     }
 

@@ -49,7 +49,7 @@ public class ProductionButtonUI : MonoBehaviour
 
         // Produktions-Warteschlange anzeigen
         int count = building.CountQueued(unitData);
-        queueCountText.text = count > 1 ? count.ToString() : "";
+        queueCountText.text = count > 0 ? count.ToString() : "";
     }
 
     public void Setup(UnitData data, ProductionBuilding prodBuilding)

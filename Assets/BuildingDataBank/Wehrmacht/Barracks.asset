@@ -22,5 +22,5 @@ MonoBehaviour:
   costMetal: 150
   costOil: 0
   costPopulation: 0
-  buildTime: 10
-  description: 
+  buildTime: 25
+  description: Here you can Train Units

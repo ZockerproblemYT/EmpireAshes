@@ -22,5 +22,5 @@ MonoBehaviour:
   costMetal: 200
   costOil: 0
   costPopulation: 0
-  buildTime: 15
-  description: Bunker, Kugeln kommen nicht so leicht durch
+  buildTime: 35
+  description: Bunker, good against Infantry

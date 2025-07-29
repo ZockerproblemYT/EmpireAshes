@@ -102,6 +102,14 @@ public class SmithyUpgradeUI : MonoBehaviour
         Image img = u.iconImage != null ? u.iconImage : u.button.GetComponent<Image>();
         if (img != null && u.data != null && u.data.icon != null)
             img.sprite = u.data.icon;
+
+        TooltipTrigger trigger = u.button.GetComponent<TooltipTrigger>();
+        if (trigger != null && u.data != null)
+        {
+            trigger.header = u.data.upgradeName;
+            string cost = TooltipSystem.FormatCostString(u.data.costMetal, u.data.costOil, 0);
+            trigger.content = $"{cost}\n\n{u.data.description}";
+        }
     }
 
     private void OnResearch(UpgradeButton upgrade)

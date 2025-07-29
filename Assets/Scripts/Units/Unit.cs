@@ -803,6 +803,18 @@ private void UpdateWaypointLine()
         AttackUnit(enemy);
     }
 
+    /// <summary>
+    /// Sets a building as attack target if it belongs to an enemy faction.
+    /// </summary>
+    /// <param name="building">Building to attack.</param>
+    public void SetTarget(Building building)
+    {
+        if (building == null || !IsEnemy(building) || building == targetBuilding || building.IsDestroyed())
+            return;
+
+        AttackBuilding(building);
+    }
+
     public void AttackUnit(Unit enemy)
     {
         if (enemy == null || !IsEnemy(enemy) || enemy == targetEnemy) return;

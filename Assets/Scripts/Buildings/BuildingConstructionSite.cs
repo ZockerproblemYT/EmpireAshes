@@ -128,6 +128,33 @@ public class BuildingConstructionSite : MonoBehaviour
             CompleteConstruction();
     }
 
+    public void CancelConstruction()
+    {
+        if (isCompleted) return;
+
+        // Refund 70% of spent resources
+        int refundMetal = Mathf.RoundToInt(buildingData.costMetal * 0.7f);
+        int refundOil = Mathf.RoundToInt(buildingData.costOil * 0.7f);
+        int refundPop = Mathf.RoundToInt(buildingData.costPopulation * 0.7f);
+        ResourceManager.Instance.Refund(owner, refundMetal, refundOil, refundPop);
+
+        // Inform assigned builders
+        var buildersCopy = new List<Unit>(assignedBuilders);
+        foreach (var worker in buildersCopy)
+        {
+            if (worker != null)
+                worker.CancelWorkerJob();
+        }
+
+        if (uiInstance != null)
+            Destroy(uiInstance.gameObject);
+
+        if (hpBuilding != null)
+            Destroy(hpBuilding.gameObject);
+
+        Destroy(gameObject);
+    }
+
     private void CompleteConstruction()
     {
         isCompleted = true;

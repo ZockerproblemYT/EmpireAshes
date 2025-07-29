@@ -214,7 +214,14 @@ public class SimpleAI : MonoBehaviour
             if (unit == null || unit.unitData == null) continue;
             Unit enemy = FindEnemyInRange(unit.transform.position, unit.unitData.visionRange);
             if (enemy != null)
+            {
                 unit.SetTarget(enemy);
+                continue;
+            }
+
+            Building building = FindEnemyBuildingInRange(unit.transform.position, unit.unitData.visionRange);
+            if (building != null)
+                unit.SetTarget(building);
         }
     }
 
@@ -232,6 +239,27 @@ public class SimpleAI : MonoBehaviour
             {
                 dist = d;
                 best = u;
+            }
+        }
+        return best;
+    }
+
+    private Building FindEnemyBuildingInRange(Vector3 pos, float range)
+    {
+        Collider[] hits = Physics.OverlapSphere(pos, range);
+        Building best = null;
+        float dist = float.MaxValue;
+        foreach (var hit in hits)
+        {
+            Building b = hit.GetComponentInParent<Building>();
+            if (b == null) continue;
+            if (!b.IsCompleted || b.IsDestroyed()) continue;
+            if (b.GetOwner() == faction) continue;
+            float d = Vector3.Distance(pos, b.transform.position);
+            if (d < dist)
+            {
+                dist = d;
+                best = b;
             }
         }
         return best;

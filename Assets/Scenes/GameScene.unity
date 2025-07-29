@@ -2536,7 +2536,9 @@ MonoBehaviour:
   backgroundRectTransform: {fileID: 1299020622}
   headerText: {fileID: 483631469}
   contentText: {fileID: 1552319411}
-  resourceSpriteAsset: {fileID: 11400000, guid: b608fddc1d22f1f45bd819ae1b9dc8c6, type: 2}
+  metalSpriteAsset: {fileID: 11400000, guid: 7aad29c8e96d9a74aaac32d1c5e49f7e, type: 2}
+  oilSpriteAsset: {fileID: 11400000, guid: 7aad29c8e96d9a74aaac32d1c5e49f7e, type: 2}
+  populationSpriteAsset: {fileID: 11400000, guid: 7aad29c8e96d9a74aaac32d1c5e49f7e, type: 2}
   mouseOffset: {x: 550, y: -120}
 --- !u!114 &622781021
 MonoBehaviour:
