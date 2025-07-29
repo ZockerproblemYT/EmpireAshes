@@ -13,9 +13,9 @@ public class TooltipSystem : MonoBehaviour
     public TextMeshProUGUI headerText;
     public TextMeshProUGUI contentText;
 
-    [Header("Sprite Assets")] 
-    [Tooltip("Sprite Asset für Metall-Icon")] public TMP_SpriteAsset metalSpriteAsset; 
-    [Tooltip("Sprite Asset für Öl-Icon")] public TMP_SpriteAsset oilSpriteAsset; 
+    [Header("Sprite Assets")]
+    [Tooltip("Sprite Asset für Metall-Icon")] public TMP_SpriteAsset metalSpriteAsset;
+    [Tooltip("Sprite Asset für Öl-Icon")] public TMP_SpriteAsset oilSpriteAsset;
     [Tooltip("Sprite Asset für Bevölkerungs-Icon")] public TMP_SpriteAsset populationSpriteAsset;
     public Vector2 mouseOffset = new Vector2(30f, -30f);  // Rechts oberhalb
 
@@ -102,7 +102,14 @@ public class TooltipSystem : MonoBehaviour
             if (primaryAsset != populationSpriteAsset && populationSpriteAsset != null) fallbacks.Add(populationSpriteAsset);
 
             TMP_Settings.defaultSpriteAsset = primaryAsset;
-            TMP_Settings.fallbackSpriteAssets = fallbacks;
+
+            // Einige Unity-Versionen besitzen keine public "fallbackSpriteAssets"
+            // Eigenschaft. Per Reflection setzen, falls vorhanden.
+            var prop = typeof(TMP_Settings).GetProperty("fallbackSpriteAssets");
+            if (prop != null)
+            {
+                prop.SetValue(null, fallbacks);
+            }
         }
 
         headerText.text = header;
@@ -174,5 +181,15 @@ public class TooltipSystem : MonoBehaviour
             return string.Empty;
 
         return $"<sprite=\"{asset.name}\" name=\"{resourceName}\">";
+    }
+
+    /// <summary>
+    /// Gibt einen formatierten Kosten-String mit vorangestellten Sprite-Icons zurück.
+    /// </summary>
+    public static string FormatCostString(int metal, int oil, int population)
+    {
+        return $"{GetResourceSpriteTag(TooltipResourceType.Metal)} {metal}   "
+               + $"{GetResourceSpriteTag(TooltipResourceType.Oil)} {oil}   "
+               + $"{GetResourceSpriteTag(TooltipResourceType.Population)} {population}";
     }
 }

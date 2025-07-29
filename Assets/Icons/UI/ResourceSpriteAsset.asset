@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 84a92b25f83d49b9bc132d206b370281, type: 3}
-  m_Name: OilTMP
+  m_Name: ResourceSpriteAsset
   m_EditorClassIdentifier: 
   m_Version: 1.1.0
   m_FaceInfo:
@@ -35,41 +35,104 @@ MonoBehaviour:
     m_StrikethroughOffset: 0
     m_StrikethroughThickness: 0
     m_TabWidth: 0
-  m_Material: {fileID: 6173405910516912817}
-  spriteSheet: {fileID: 2800000, guid: fe573a87356d54b4f802e2bef2ddd4b3, type: 3}
+  m_Material: {fileID: 6665337376580985026}
+  spriteSheet: {fileID: 2800000, guid: b08601bfd6c3c00409d279dff964d95a, type: 3}
   m_SpriteCharacterTable:
   - m_ElementType: 2
     m_Unicode: 65534
     m_GlyphIndex: 0
     m_Scale: 1
-    m_Name: OilTMP
+    m_Name: Metal
+  - m_ElementType: 2
+    m_Unicode: 65534
+    m_GlyphIndex: 1
+    m_Scale: 1
+    m_Name: Oil
+  - m_ElementType: 2
+    m_Unicode: 65534
+    m_GlyphIndex: 2
+    m_Scale: 1
+    m_Name: Polymer
+  - m_ElementType: 2
+    m_Unicode: 65534
+    m_GlyphIndex: 3
+    m_Scale: 1
+    m_Name: Population
   m_GlyphTable:
   - m_Index: 0
     m_Metrics:
-      m_Width: 1024
-      m_Height: 1024
-      m_HorizontalBearingX: -512
-      m_HorizontalBearingY: 512
-      m_HorizontalAdvance: 1024
+      m_Width: 518
+      m_Height: 512
+      m_HorizontalBearingX: -259
+      m_HorizontalBearingY: 256
+      m_HorizontalAdvance: 518
     m_GlyphRect:
-      m_X: 0
+      m_X: 1
       m_Y: 0
-      m_Width: 1024
-      m_Height: 1024
+      m_Width: 518
+      m_Height: 512
     m_Scale: 1
     m_AtlasIndex: 0
     m_ClassDefinitionType: 0
-    sprite: {fileID: 21300000, guid: fe573a87356d54b4f802e2bef2ddd4b3, type: 3}
+    sprite: {fileID: 962693371, guid: b08601bfd6c3c00409d279dff964d95a, type: 3}
+  - m_Index: 1
+    m_Metrics:
+      m_Width: 512
+      m_Height: 512
+      m_HorizontalBearingX: -256
+      m_HorizontalBearingY: 256
+      m_HorizontalAdvance: 512
+    m_GlyphRect:
+      m_X: 518
+      m_Y: 0
+      m_Width: 512
+      m_Height: 512
+    m_Scale: 1
+    m_AtlasIndex: 0
+    m_ClassDefinitionType: 0
+    sprite: {fileID: 1402102635, guid: b08601bfd6c3c00409d279dff964d95a, type: 3}
+  - m_Index: 2
+    m_Metrics:
+      m_Width: 501
+      m_Height: 512
+      m_HorizontalBearingX: -250.5
+      m_HorizontalBearingY: 256
+      m_HorizontalAdvance: 501
+    m_GlyphRect:
+      m_X: 1032
+      m_Y: 0
+      m_Width: 501
+      m_Height: 512
+    m_Scale: 1
+    m_AtlasIndex: 0
+    m_ClassDefinitionType: 0
+    sprite: {fileID: 926675761, guid: b08601bfd6c3c00409d279dff964d95a, type: 3}
+  - m_Index: 3
+    m_Metrics:
+      m_Width: 508
+      m_Height: 512
+      m_HorizontalBearingX: -254
+      m_HorizontalBearingY: 256
+      m_HorizontalAdvance: 508
+    m_GlyphRect:
+      m_X: 1540
+      m_Y: 0
+      m_Width: 508
+      m_Height: 512
+    m_Scale: 1
+    m_AtlasIndex: 0
+    m_ClassDefinitionType: 0
+    sprite: {fileID: 523661226, guid: b08601bfd6c3c00409d279dff964d95a, type: 3}
   spriteInfoList: []
   fallbackSpriteAssets: []
---- !u!21 &6173405910516912817
+--- !u!21 &6665337376580985026
 Material:
   serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: OilTMP Material
+  m_Name: Resources Material
   m_Shader: {fileID: 4800000, guid: cf81c85f95fe47e1a27f6ae460cf182c, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -86,7 +149,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: fe573a87356d54b4f802e2bef2ddd4b3, type: 3}
+        m_Texture: {fileID: 2800000, guid: b08601bfd6c3c00409d279dff964d95a, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
