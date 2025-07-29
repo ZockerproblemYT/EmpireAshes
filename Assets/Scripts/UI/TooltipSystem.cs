@@ -103,12 +103,29 @@ public class TooltipSystem : MonoBehaviour
 
             TMP_Settings.defaultSpriteAsset = primaryAsset;
 
-            // Einige Unity-Versionen besitzen keine public "fallbackSpriteAssets"
-            // Eigenschaft. Per Reflection setzen, falls vorhanden.
+            // Lookup-Tabellen der SpriteAssets aktualisieren, damit Tags korrekt
+            // aufgelöst werden können.
+            primaryAsset.UpdateLookupTables();
+            foreach (var fb in fallbacks)
+                fb.UpdateLookupTables();
+
+            // Einige Unity-Versionen besitzen keine public "fallbackSpriteAssets"-
+            // Eigenschaft, oder sie ist als Field deklariert. Daher via
+            // Reflection nach Property oder Field suchen und, falls vorhanden,
+            // die Fallback-Liste setzen.
             var prop = typeof(TMP_Settings).GetProperty("fallbackSpriteAssets");
             if (prop != null)
             {
                 prop.SetValue(null, fallbacks);
+            }
+            else
+            {
+                var field = typeof(TMP_Settings).GetField("fallbackSpriteAssets",
+                    System.Reflection.BindingFlags.Public |
+                    System.Reflection.BindingFlags.NonPublic |
+                    System.Reflection.BindingFlags.Static);
+                if (field != null)
+                    field.SetValue(null, fallbacks);
             }
         }
 
@@ -162,6 +179,7 @@ public class TooltipSystem : MonoBehaviour
         if (Instance == null)
             return string.Empty;
 
+        // SpriteAsset prüfen, um ungültige Tags zu vermeiden
         TMP_SpriteAsset asset = null;
         string resourceName = resource.ToString();
         switch (resource)
@@ -180,7 +198,8 @@ public class TooltipSystem : MonoBehaviour
         if (asset == null)
             return string.Empty;
 
-        return $"<sprite=\"{asset.name}\" name=\"{resourceName}\">";
+        // Da der SpriteAsset bereits am Text zugewiesen wird, reicht der Name.
+        return $"<sprite name=\"{resourceName}\">";
     }
 
     /// <summary>
@@ -188,8 +207,23 @@ public class TooltipSystem : MonoBehaviour
     /// </summary>
     public static string FormatCostString(int metal, int oil, int population)
     {
-        return $"{GetResourceSpriteTag(TooltipResourceType.Metal)} {metal}   "
-               + $"{GetResourceSpriteTag(TooltipResourceType.Oil)} {oil}   "
-               + $"{GetResourceSpriteTag(TooltipResourceType.Population)} {population}";
+        System.Text.StringBuilder sb = new System.Text.StringBuilder();
+
+        void AppendCost(int amount, TooltipResourceType type)
+        {
+            if (amount <= 0)
+                return;
+
+            if (sb.Length > 0)
+                sb.Append("   ");
+
+            sb.Append($"{GetResourceSpriteTag(type)} {amount}");
+        }
+
+        AppendCost(metal, TooltipResourceType.Metal);
+        AppendCost(oil, TooltipResourceType.Oil);
+        AppendCost(population, TooltipResourceType.Population);
+
+        return sb.ToString();
     }
 }
