@@ -104,6 +104,9 @@ public class SmithyUpgradeUI : MonoBehaviour
             img.sprite = u.data.icon;
 
         TooltipTrigger trigger = u.button.GetComponent<TooltipTrigger>();
+        if (trigger == null)
+            trigger = u.button.gameObject.AddComponent<TooltipTrigger>();
+
         if (trigger != null && u.data != null)
         {
             trigger.header = u.data.upgradeName;

@@ -46,7 +46,7 @@ GameObject:
   - component: {fileID: 3057246506911895393}
   - component: {fileID: 1216169848765068734}
   - component: {fileID: 3684126062345430011}
-  - component: {fileID: 6341318039199919881}
+  - component: {fileID: -3342706720375767252}
   m_Layer: 9
   m_Name: Construction_Smithy
   m_TagString: Untagged
@@ -177,7 +177,7 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 0, z: 0}
   m_TimeToStationary: 0.5
---- !u!114 &6341318039199919881
+--- !u!114 &-3342706720375767252
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -186,7 +186,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1844372635997890233}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3af914f1776cf1841b0935d09d3d0d41, type: 3}
+  m_Script: {fileID: 11500000, guid: 043d44a00e8dee04ab0545312604e168, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   buildingName: 
@@ -196,7 +196,9 @@ MonoBehaviour:
   buildingUnderConstructionVisual: {fileID: 0}
   buildTime: 10
   maxHealth: 100
-  uiPrefab: {fileID: 0}
+  uiPrefab: {fileID: 1175801689726128610, guid: 2b064ba488279e8458e377f613d0fd73, type: 3}
+  selectionBoxPrefab: {fileID: 7199317963728050502, guid: c3fa9cf4478f011449e8eea14ca4bd4a, type: 3}
+  infantryDamageBonus: 1
 --- !u!1 &5124743474511737819
 GameObject:
   m_ObjectHideFlags: 0

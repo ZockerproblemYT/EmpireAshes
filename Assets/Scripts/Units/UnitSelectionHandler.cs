@@ -266,6 +266,12 @@ public class UnitSelectionHandler : MonoBehaviour
                 AddToSelection(unit);
             else if (building != null)
                 AddToSelection(building, false);
+            else if (hit.collider.GetComponentInParent<BuildingConstructionSite>() is BuildingConstructionSite site)
+            {
+                Building b = site.GetComponentInChildren<Building>();
+                if (b != null)
+                    AddToSelection(b, true);
+            }
         }
     }
 

@@ -76,6 +76,9 @@ public class SimpleAI : MonoBehaviour
             }
         }
 
+        // Start attack timer so the AI waits before the first assault
+        attackTimer = attackInterval;
+
         initialized = true;
         Debug.Log($"🤖 SimpleAI Initialisiert: {faction?.name}, HQ={(hq != null)}, Barracks={(barracks != null)}, Worker={worker?.unitName}, Combat={combat?.unitName}");
     }
@@ -89,6 +92,7 @@ public class SimpleAI : MonoBehaviour
         HandleProduction();
         HandleConstruction();
         AssignWorkers();
+        EnsureConstructionProgress();
         HandleAttack();
         SearchForTargets();
     }
@@ -307,12 +311,14 @@ public class SimpleAI : MonoBehaviour
             site.Initialize(data, faction);
             ResourceManager.Instance.Spend(faction, data.costMetal, data.costOil, data.costPopulation);
 
+            int assigned = 0;
             foreach (var w in workers)
             {
+                if (assigned >= 2) break;
                 if (w != null && w.IsIdle() && !w.IsMoving() && !w.IsBuilding())
                 {
                     w.AssignToConstruction(site);
-                    break;
+                    assigned++;
                 }
             }
             return true;
@@ -387,5 +393,30 @@ public class SimpleAI : MonoBehaviour
         }
 
         return true;
+    }
+
+    private void EnsureConstructionProgress()
+    {
+        var sites = FindObjectsByType<BuildingConstructionSite>(FindObjectsSortMode.None);
+        foreach (var site in sites)
+        {
+            if (site == null || site.IsComplete())
+                continue;
+
+            var build = site.GetComponent<Building>();
+            if (build == null || build.GetOwner() != faction)
+                continue;
+
+            int needed = Mathf.Max(1, 2 - site.GetBuilderCount());
+            foreach (var w in workers)
+            {
+                if (needed <= 0) break;
+                if (w != null && w.IsIdle() && !w.IsMoving() && !w.IsBuilding())
+                {
+                    w.AssignToConstruction(site);
+                    needed--;
+                }
+            }
+        }
     }
 }

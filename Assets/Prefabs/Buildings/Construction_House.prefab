@@ -189,7 +189,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3af914f1776cf1841b0935d09d3d0d41, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  buildingName: 
+  buildingName: House
   costMetal: 0
   costOil: 0
   costPopulation: 0
@@ -197,6 +197,7 @@ MonoBehaviour:
   buildTime: 10
   maxHealth: 100
   uiPrefab: {fileID: 0}
+  selectionBoxPrefab: {fileID: 7199317963728050502, guid: c3fa9cf4478f011449e8eea14ca4bd4a, type: 3}
 --- !u!1 &5124743474511737819
 GameObject:
   m_ObjectHideFlags: 0
