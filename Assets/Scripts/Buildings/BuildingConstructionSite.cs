@@ -151,7 +151,7 @@ public class BuildingConstructionSite : MonoBehaviour
         foreach (var worker in buildersCopy)
         {
             if (worker != null)
-                worker.CancelWorkerJob();
+                worker.CancelWorkerJob(false);
         }
 
         if (uiInstance != null)

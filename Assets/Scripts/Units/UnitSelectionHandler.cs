@@ -109,10 +109,17 @@ public class UnitSelectionHandler : MonoBehaviour
         if (!Input.GetMouseButtonDown(1))
             return;
 
-        if (BuildingPlacer.Instance != null && BuildingPlacer.Instance.IsPlacing)
+        if (BuildingPlacer.Instance != null)
         {
-            BuildingPlacer.Instance.CancelPlacement();
-            return;
+            if (BuildingPlacer.Instance.IsPlacing)
+            {
+                BuildingPlacer.Instance.CancelPlacement();
+                return;
+            }
+            if (BuildingPlacer.Instance.ConsumeJustCanceled())
+            {
+                return;
+            }
         }
 
         Ray ray = cam.ScreenPointToRay(Input.mousePosition);

@@ -693,6 +693,8 @@ private void UpdateWaypointLine()
     {
         if (site == null) return;
         jobQueue.Enqueue(() => AssignToConstruction(site, true));
+        if (currentState == State.Idle)
+            ProcessNextJob();
     }
 
     public void QueueHarvestCycle(MetalNode node, DropOffBuilding drop)

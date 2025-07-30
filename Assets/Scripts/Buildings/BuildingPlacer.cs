@@ -19,6 +19,7 @@ public class BuildingPlacer : MonoBehaviour
     private Faction playerFaction;
     private bool isPlacing = false;
     private bool justPlaced = false;
+    private bool justCanceled = false;
 
     public bool IsPlacing => isPlacing;
 
@@ -30,6 +31,16 @@ public class BuildingPlacer : MonoBehaviour
         bool placed = justPlaced;
         justPlaced = false;
         return placed;
+    }
+
+    /// <summary>
+    /// Returns true if a placement was canceled since the last check.
+    /// </summary>
+    public bool ConsumeJustCanceled()
+    {
+        bool canceled = justCanceled;
+        justCanceled = false;
+        return canceled;
     }
 
     private void Awake()
@@ -175,6 +186,7 @@ public class BuildingPlacer : MonoBehaviour
         currentGhost = null;
         currentData = null;
         isPlacing = false;
+        justCanceled = true;
     }
 
     private Vector3 GetSnappedPosition(Vector3 raw)
