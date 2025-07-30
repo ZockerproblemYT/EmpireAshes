@@ -86,6 +86,46 @@ public class ProductionUIManager : MonoBehaviour
         Debug.Log($"✅ Insgesamt erzeugte Buttons: {units.Count}");
     }
 
+    public void ShowPreviewFor(ProductionBuilding building)
+    {
+        if (building == null)
+        {
+            Debug.LogWarning("⚠️ ShowPreviewFor: Kein gültiges Gebäude übergeben!");
+            return;
+        }
+
+        currentBuilding = building;
+
+        if (productionPanel != null)
+            productionPanel.SetActive(true);
+
+        if (infoLabel != null)
+            infoLabel.text = building.buildingName;
+
+        ClearButtons();
+
+        List<UnitData> units = building.availableUnits;
+        for (int i = 0; i < units.Count; i++)
+        {
+            UnitData unit = units[i];
+            GameObject buttonObj = Instantiate(productionButtonPrefab, buttonContainer);
+            buttonObj.SetActive(true);
+
+            ProductionButtonUI buttonUI = buttonObj.GetComponent<ProductionButtonUI>();
+            if (buttonUI != null)
+            {
+                buttonUI.Setup(unit, building);
+                Button btn = buttonObj.GetComponent<Button>();
+                if (btn != null)
+                    btn.interactable = false;
+            }
+
+            TooltipTrigger tooltip = buttonObj.GetComponent<TooltipTrigger>();
+            if (tooltip != null)
+                tooltip.unitData = unit;
+        }
+    }
+
     public void Hide()
     {
         currentBuilding = null;

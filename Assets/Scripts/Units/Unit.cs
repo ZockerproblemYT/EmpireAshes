@@ -195,6 +195,8 @@ private void HandleMovement()
                 isMoving = false;
                 currentWaypoint = null;
                 lineRenderer.positionCount = 0;
+                if (jobQueue.Count > 0)
+                    ProcessNextJob();
             }
         }
     }
@@ -217,7 +219,6 @@ private void SafeSetDestination(Vector3 destination)
         Debug.LogWarning($"[SafeSetDestination] ❌ Kein gültiger Punkt nahe {destination}", this);
     }
 }
-
 
 private GameObject CreateWaypointVisual(Vector3 pos, GameObject overridePrefab = null)
 {
@@ -258,17 +259,16 @@ private void UpdateWaypointLine()
         {
             if (obj.GetComponentInParent<BuildingConstructionSite>() is BuildingConstructionSite site && !site.IsFinished())
             {
-                AssignToConstruction(site);
+                AssignToConstruction(site, shift);
                 return;
             }
 
             if (obj.GetComponentInParent<MetalNode>() is MetalNode node)
             {
                 var drop = FindClosestDropOff(node.transform.position);
-                if (!shift) CancelWorkerJob();
                 if (drop != null)
                 {
-                    StartHarvestCycle(node, drop);
+                    StartHarvestCycle(node, drop, shift);
                     return;
                 }
             }
@@ -276,16 +276,13 @@ private void UpdateWaypointLine()
             if (obj.GetComponentInParent<Refinery>() is Refinery refinery && refinery.IsCompleted)
             {
                 var drop = FindClosestDropOff(refinery.transform.position);
-                if (!shift) CancelWorkerJob();
                 if (drop != null)
                 {
-                    StartOilCycle(refinery, drop);
+                    StartOilCycle(refinery, drop, shift);
                     return;
                 }
             }
 
-            if (!shift)
-                CancelWorkerJob();
         }
 
         // Check if clicked on enemy unit
@@ -323,7 +320,17 @@ private void UpdateWaypointLine()
             attackRoutine = null;
         }
 
-        MoveTo(clickPos, shift, flag);
+        bool hasJob = currentState != State.Idle || jobQueue.Count > 0;
+        if (role == UnitRole.Worker && shift && hasJob)
+        {
+            QueueMoveTo(clickPos);
+        }
+        else
+        {
+            if (!shift)
+                CancelWorkerJob();
+            MoveTo(clickPos, shift && !hasJob, flag);
+        }
     }
 
     private void HandleCombat()
@@ -545,7 +552,7 @@ private void UpdateWaypointLine()
 
     public void StartHarvestCycle(MetalNode node, DropOffBuilding drop, bool keepQueue = false)
     {
-        CancelWorkerJob(!keepQueue);
+        CancelWorkerJob(!keepQueue, false);
         currentNode = node;
         currentDropOff = drop;
         isFarmingOil = false;
@@ -558,7 +565,7 @@ private void UpdateWaypointLine()
 
     public void StartOilCycle(Refinery refinery, DropOffBuilding drop, bool keepQueue = false)
     {
-        CancelWorkerJob(!keepQueue);
+        CancelWorkerJob(!keepQueue, false);
         currentRefinery = refinery;
         currentDropOff = drop;
         isFarmingOil = true;
@@ -611,15 +618,15 @@ private void UpdateWaypointLine()
     carriedResources = 0;
 
     if (isFarmingOil)
-        StartOilCycle(currentRefinery, currentDropOff);
+        StartOilCycle(currentRefinery, currentDropOff, true);
     else
-        StartHarvestCycle(currentNode, currentDropOff);
+        StartHarvestCycle(currentNode, currentDropOff, true);
 }
 
 
     public void AssignToConstruction(BuildingConstructionSite site, bool keepQueue = false)
     {
-        CancelWorkerJob(!keepQueue);
+        CancelWorkerJob(!keepQueue, false);
         currentSite = site;
         hasConfirmedArrival = false;
         site.AddBuilder(this);
@@ -635,7 +642,7 @@ private void UpdateWaypointLine()
         agent.ResetPath();
     }
 
-    public void CancelWorkerJob(bool clearQueue = true)
+    public void CancelWorkerJob(bool clearQueue = true, bool processQueue = true)
     {
         agent.ResetPath();
         currentNode = null;
@@ -655,7 +662,7 @@ private void UpdateWaypointLine()
         ClearWaypoints();
         if (clearQueue)
             jobQueue.Clear();
-        else
+        else if (processQueue)
             ProcessNextJob();
     }
 
@@ -698,6 +705,11 @@ private void UpdateWaypointLine()
     {
         if (refinery == null || drop == null) return;
         jobQueue.Enqueue(() => StartOilCycle(refinery, drop, true));
+    }
+
+    public void QueueMoveTo(Vector3 position)
+    {
+        jobQueue.Enqueue(() => MoveTo(position, false, null, true));
     }
 
     private bool IsNear(Vector3 pos, float range)

@@ -6730,6 +6730,7 @@ MonoBehaviour:
   maxHealth: 100
   uiPrefab: {fileID: 0}
   selectionBoxPrefab: {fileID: 0}
+  constructionSite: {fileID: 0}
 --- !u!1 &2132384172
 GameObject:
   m_ObjectHideFlags: 0

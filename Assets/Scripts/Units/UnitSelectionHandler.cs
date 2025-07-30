@@ -109,6 +109,12 @@ public class UnitSelectionHandler : MonoBehaviour
         if (!Input.GetMouseButtonDown(1))
             return;
 
+        if (BuildingPlacer.Instance != null && BuildingPlacer.Instance.IsPlacing)
+        {
+            BuildingPlacer.Instance.CancelPlacement();
+            return;
+        }
+
         Ray ray = cam.ScreenPointToRay(Input.mousePosition);
         RaycastHit[] hits = Physics.RaycastAll(ray);
         if (hits.Length == 0)
@@ -161,7 +167,10 @@ public class UnitSelectionHandler : MonoBehaviour
                         if (!shift) unit.CancelWorkerJob();
                         if (drop != null)
                         {
-                            unit.StartHarvestCycle(node, drop);
+                            if (shift)
+                                unit.QueueHarvestCycle(node, drop);
+                            else
+                                unit.StartHarvestCycle(node, drop);
                             continue;
                         }
                     }
@@ -172,7 +181,10 @@ public class UnitSelectionHandler : MonoBehaviour
                         if (!shift) unit.CancelWorkerJob();
                         if (drop != null)
                         {
-                            unit.StartOilCycle(refinery, drop);
+                            if (shift)
+                                unit.QueueOilCycle(refinery, drop);
+                            else
+                                unit.StartOilCycle(refinery, drop);
                             continue;
                         }
                     }

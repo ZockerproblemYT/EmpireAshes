@@ -161,6 +161,7 @@ MonoBehaviour:
   currentProgress: 0
   buildTime: 5
   uiPrefab: {fileID: 1175801689726128610, guid: 2b064ba488279e8458e377f613d0fd73, type: 3}
+  selectionIndicator: {fileID: 7199317963728050502, guid: c3fa9cf4478f011449e8eea14ca4bd4a, type: 3}
 --- !u!208 &3684126062345430011
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -198,6 +199,7 @@ MonoBehaviour:
   maxHealth: 100
   uiPrefab: {fileID: 0}
   selectionBoxPrefab: {fileID: 7199317963728050502, guid: c3fa9cf4478f011449e8eea14ca4bd4a, type: 3}
+  constructionSite: {fileID: 0}
 --- !u!1 &5124743474511737819
 GameObject:
   m_ObjectHideFlags: 0

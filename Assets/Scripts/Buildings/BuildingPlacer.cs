@@ -167,7 +167,7 @@ public class BuildingPlacer : MonoBehaviour
         }
     }
 
-    private void CancelPlacement()
+    public void CancelPlacement()
     {
         if (currentGhost != null)
             Destroy(currentGhost);

@@ -22,9 +22,14 @@ public class BuildingConstructionSite : MonoBehaviour
     [SerializeField] private GameObject uiPrefab;
     private BuildingUIController uiInstance;
 
+    [Header("Selection")]
+    [SerializeField] private GameObject selectionIndicator;
+
     void Awake()
     {
         visual = transform.GetChild(0);
+        if (selectionIndicator != null)
+            selectionIndicator.SetActive(false);
     }
 
     void Start()
@@ -65,6 +70,9 @@ public class BuildingConstructionSite : MonoBehaviour
             Debug.LogError("❌ Kein Building-Script für HP gefunden!");
             return;
         }
+
+        hpBuilding.constructionSite = this;
+        hpBuilding.SetOwner(owner, false);
 
         hpBuilding.SetUnderConstruction(true);
         hpBuilding.SetMaxHealth(buildingData.maxHealth);
@@ -150,7 +158,10 @@ public class BuildingConstructionSite : MonoBehaviour
             Destroy(uiInstance.gameObject);
 
         if (hpBuilding != null)
+        {
+            hpBuilding.constructionSite = null;
             Destroy(hpBuilding.gameObject);
+        }
 
         Destroy(gameObject);
     }
@@ -203,7 +214,10 @@ public class BuildingConstructionSite : MonoBehaviour
             Destroy(uiInstance.gameObject);
 
         if (hpBuilding != null)
+        {
+            hpBuilding.constructionSite = null;
             Destroy(hpBuilding);
+        }
 
         Destroy(gameObject);
     }
@@ -241,6 +255,12 @@ public class BuildingConstructionSite : MonoBehaviour
         }
 
         return best;
+    }
+
+    public void SetSelected(bool selected)
+    {
+        if (selectionIndicator != null)
+            selectionIndicator.SetActive(selected);
     }
 
     // 🔎 Public Helper

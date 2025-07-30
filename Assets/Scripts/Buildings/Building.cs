@@ -27,6 +27,9 @@ public class Building : MonoBehaviour
     private GameObject selectionBoxInstance;
     private float selectionBoxYScale = -1f;
 
+    // Reference to an optional construction site this building belongs to
+    [HideInInspector] public BuildingConstructionSite constructionSite;
+
     protected Faction owner;
     private bool isDestroyed = false;
     private bool isSelected = false;
@@ -44,7 +47,7 @@ public class Building : MonoBehaviour
 
     protected virtual void Start()
     {
-        if (owner == null)
+        if (owner == null && !IsUnderConstruction && constructionSite == null)
         {
             Debug.LogWarning($"⚠️ Building '{name}' hat keinen Owner. Bitte rufe SetOwner() nach dem Spawn auf!");
         }
@@ -83,7 +86,7 @@ public class Building : MonoBehaviour
 
     public void SetFullHealth() => SetHealth(maxHealth);
 
-    public void SetOwner(Faction faction)
+    public void SetOwner(Faction faction, bool applyColor = true)
     {
         if (faction == null)
         {
@@ -92,6 +95,9 @@ public class Building : MonoBehaviour
         }
 
         owner = faction;
+
+        if (!applyColor)
+            return;
 
         Renderer[] renderers = GetComponentsInChildren<Renderer>();
         foreach (Renderer r in renderers)
@@ -118,6 +124,9 @@ public class Building : MonoBehaviour
             ShowSelectionBox();
         else
             HideSelectionBox();
+
+        if (constructionSite != null)
+            constructionSite.SetSelected(selected);
     }
 
     public bool ShouldShowHP() => showHPBar;

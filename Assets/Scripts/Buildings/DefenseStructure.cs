@@ -52,15 +52,29 @@ public class DefenseStructure : MonoBehaviour
             owner = building.GetOwner();
 
         Collider[] hits = Physics.OverlapSphere(transform.position, attackRange);
+        Unit closestEnemy = null;
+        float closestDist = float.MaxValue;
+
         foreach (var hit in hits)
         {
             Unit u = hit.GetComponent<Unit>();
-            if (u == null) continue;
+            if (u == null)
+                continue;
 
             if (owner != null && u.GetOwnerFaction() == owner)
                 continue; // eigene Einheiten nicht angreifen
 
-            Health hp = u.GetComponent<Health>();
+            float dist = Vector3.Distance(transform.position, u.transform.position);
+            if (dist < closestDist)
+            {
+                closestDist = dist;
+                closestEnemy = u;
+            }
+        }
+
+        if (closestEnemy != null)
+        {
+            Health hp = closestEnemy.GetComponent<Health>();
             if (hp != null)
                 hp.TakeDamage(attackDamage);
         }
