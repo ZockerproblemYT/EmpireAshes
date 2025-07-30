@@ -627,6 +627,14 @@ private void UpdateWaypointLine()
     public void AssignToConstruction(BuildingConstructionSite site, bool keepQueue = false)
     {
         CancelWorkerJob(!keepQueue, false);
+
+        if (site == null)
+        {
+            if (keepQueue)
+                ProcessNextJob();
+            return;
+        }
+
         currentSite = site;
         hasConfirmedArrival = false;
         site.AddBuilder(this);

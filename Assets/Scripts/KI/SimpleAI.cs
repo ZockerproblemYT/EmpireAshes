@@ -403,7 +403,7 @@ public class SimpleAI : MonoBehaviour
             if (site == null || site.IsComplete())
                 continue;
 
-            var build = site.GetComponent<Building>();
+            var build = site.GetComponent<Building>() ?? site.GetComponentInChildren<Building>();
             if (build == null || build.GetOwner() != faction)
                 continue;
 
