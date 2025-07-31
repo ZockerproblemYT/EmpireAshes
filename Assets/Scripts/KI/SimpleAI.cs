@@ -91,8 +91,8 @@ public class SimpleAI : MonoBehaviour
         CollectUnits();
         HandleProduction();
         HandleConstruction();
-        AssignWorkers();
         EnsureConstructionProgress();
+        AssignWorkers();
         HandleAttack();
         SearchForTargets();
     }
@@ -125,9 +125,20 @@ public class SimpleAI : MonoBehaviour
             }
         }
 
-        if (barracks != null && combatUnit != null && barracks.GetOwner() == faction)
+        if (combatUnit != null)
         {
-            barracks.EnqueueUnit(combatUnit);
+            var allBarracks = FindObjectsByType<ProductionBuilding>(FindObjectsSortMode.None);
+            foreach (var pb in allBarracks)
+            {
+                if (pb == null) continue;
+                var building = pb.GetComponent<Building>();
+                if (building == null || !building.IsCompleted || building.GetOwner() != faction)
+                    continue;
+                if (!pb.availableUnits.Contains(combatUnit))
+                    continue;
+                if (pb.CountQueued(combatUnit) == 0)
+                    pb.EnqueueUnit(combatUnit);
+            }
         }
     }
 
@@ -276,23 +287,28 @@ public class SimpleAI : MonoBehaviour
     {
         if (hq == null) return;
 
-        // einfache Platzierungslogik in der Nähe des HQ
-        if (!builtHouse && houseData != null)
+        // Status der Gebäude aktualisieren
+        if (houseData != null)
+            builtHouse = HasCompletedBuilding(houseData.buildingName);
+        if (barracksData != null)
+            builtExtraBarracks = HasCompletedBuilding(barracksData.buildingName);
+        if (bunkerData != null)
+            builtBunker = HasCompletedBuilding(bunkerData.buildingName);
+
+        // Nur bauen, wenn kein fertiges Gebäude und keine Baustelle existiert
+        if (!builtHouse && houseData != null && !HasConstructionSite(houseData.buildingName))
         {
-            if (TryBuild(houseData, hq.transform.position + new Vector3(4f, 0f, -4f)))
-                builtHouse = true;
+            TryBuild(houseData, hq.transform.position + new Vector3(4f, 0f, -4f));
         }
 
-        if (!builtExtraBarracks && barracksData != null)
+        if (!builtExtraBarracks && barracksData != null && !HasConstructionSite(barracksData.buildingName))
         {
-            if (TryBuild(barracksData, hq.transform.position + new Vector3(-6f, 0f, 3f)))
-                builtExtraBarracks = true;
+            TryBuild(barracksData, hq.transform.position + new Vector3(-6f, 0f, 3f));
         }
 
-        if (!builtBunker && bunkerData != null)
+        if (!builtBunker && bunkerData != null && !HasConstructionSite(bunkerData.buildingName))
         {
-            if (TryBuild(bunkerData, hq.transform.position + new Vector3(0f, 0f, 8f)))
-                builtBunker = true;
+            TryBuild(bunkerData, hq.transform.position + new Vector3(0f, 0f, 8f));
         }
     }
 
@@ -395,6 +411,33 @@ public class SimpleAI : MonoBehaviour
         return true;
     }
 
+    private bool HasCompletedBuilding(string name)
+    {
+        var buildings = FindObjectsByType<Building>(FindObjectsSortMode.None);
+        foreach (var b in buildings)
+        {
+            if (b == null || !b.IsCompleted) continue;
+            if (b.GetOwner() != faction) continue;
+            if (b.buildingName == name)
+                return true;
+        }
+        return false;
+    }
+
+    private bool HasConstructionSite(string name)
+    {
+        var sites = FindObjectsByType<BuildingConstructionSite>(FindObjectsSortMode.None);
+        foreach (var s in sites)
+        {
+            if (s == null || s.IsComplete()) continue;
+            var building = s.GetComponent<Building>() ?? s.GetComponentInChildren<Building>();
+            if (building == null || building.GetOwner() != faction) continue;
+            if (s.buildingData != null && s.buildingData.buildingName == name)
+                return true;
+        }
+        return false;
+    }
+
     private void EnsureConstructionProgress()
     {
         var sites = FindObjectsByType<BuildingConstructionSite>(FindObjectsSortMode.None);
@@ -407,7 +450,7 @@ public class SimpleAI : MonoBehaviour
             if (build == null || build.GetOwner() != faction)
                 continue;
 
-            int needed = Mathf.Max(1, 2 - site.GetBuilderCount());
+            int needed = Mathf.Max(0, 2 - site.GetBuilderCount());
             foreach (var w in workers)
             {
                 if (needed <= 0) break;

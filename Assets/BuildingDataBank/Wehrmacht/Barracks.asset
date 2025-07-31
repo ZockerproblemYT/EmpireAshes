@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 422cac7dbd980ed439265008699fe741, type: 3}
   m_Name: Barracks
   m_EditorClassIdentifier: 
-  buildingName: Barrack
+  buildingName: Barracks
   buildingType: 2
   prefab: {fileID: 1844372635997890233, guid: f79b5a99bf931bd40ae2e4be767ee7cc, type: 3}
   ghostPrefab: {fileID: 1844372635997890233, guid: d654d7218feaab948b110f8c35552a7c, type: 3}
