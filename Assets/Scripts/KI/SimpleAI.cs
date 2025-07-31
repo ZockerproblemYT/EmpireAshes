@@ -9,6 +9,8 @@ public class SimpleAI : MonoBehaviour
     public ProductionBuilding barracks;
     public UnitData workerUnit;
     public UnitData combatUnit;
+    private readonly List<UnitData> combatUnitOptions = new();
+    private readonly List<ProductionBuilding> barracksList = new();
 
     [Header("Verhalten")]
     public int desiredWorkers = 3;
@@ -47,6 +49,16 @@ public class SimpleAI : MonoBehaviour
         this.workerUnit = worker;
         this.combatUnit = combat;
 
+        combatUnitOptions.Clear();
+        if (faction != null && faction.availableUnits != null)
+        {
+            foreach (var ud in faction.availableUnits)
+            {
+                if (ud != null && ud.role == UnitRole.Combat)
+                    combatUnitOptions.Add(ud);
+            }
+        }
+
         // verfügbare BuildingData zuordnen
         if (faction != null && faction.availableBuildings != null)
         {
@@ -80,7 +92,7 @@ public class SimpleAI : MonoBehaviour
         attackTimer = attackInterval;
 
         initialized = true;
-        Debug.Log($"🤖 SimpleAI Initialisiert: {faction?.name}, HQ={(hq != null)}, Barracks={(barracks != null)}, Worker={worker?.unitName}, Combat={combat?.unitName}");
+        Debug.Log($"🤖 SimpleAI Initialisiert: {faction?.name}, HQ={(hq != null)}, BarracksList={barracksList.Count}, Worker={worker?.unitName}, CombatUnits={combatUnitOptions.Count}");
     }
 
     private void Update()
@@ -125,19 +137,20 @@ public class SimpleAI : MonoBehaviour
             }
         }
 
-        if (combatUnit != null)
+        if (combatUnitOptions.Count > 0 && barracksList.Count > 0)
         {
-            var allBarracks = FindObjectsByType<ProductionBuilding>(FindObjectsSortMode.None);
-            foreach (var pb in allBarracks)
+            foreach (var pb in barracksList)
             {
                 if (pb == null) continue;
-                var building = pb.GetComponent<Building>();
-                if (building == null || !building.IsCompleted || building.GetOwner() != faction)
-                    continue;
-                if (!pb.availableUnits.Contains(combatUnit))
-                    continue;
-                if (pb.CountQueued(combatUnit) == 0)
-                    pb.EnqueueUnit(combatUnit);
+
+                foreach (var cu in combatUnitOptions)
+                {
+                    if (cu == null) continue;
+                    if (!pb.availableUnits.Contains(cu))
+                        continue;
+                    if (pb.CountQueued(cu) == 0)
+                        pb.EnqueueUnit(cu);
+                }
             }
         }
     }
@@ -188,6 +201,7 @@ public class SimpleAI : MonoBehaviour
 
     private void RefreshProductionBuildings()
     {
+        barracksList.Clear();
         ProductionBuilding[] all = FindObjectsByType<ProductionBuilding>(FindObjectsSortMode.None);
 
         foreach (var pb in all)
@@ -200,11 +214,22 @@ public class SimpleAI : MonoBehaviour
             if (hq == null && workerUnit != null && pb.availableUnits.Contains(workerUnit))
                 hq = pb;
 
-            if (barracks == null && combatUnit != null && pb.availableUnits.Contains(combatUnit))
-                barracks = pb;
+            bool isBarracks = false;
+            foreach (var cu in combatUnitOptions)
+            {
+                if (cu != null && pb.availableUnits.Contains(cu))
+                {
+                    isBarracks = true;
+                    break;
+                }
+            }
 
-            if (hq != null && barracks != null)
-                break;
+            if (isBarracks)
+            {
+                barracksList.Add(pb);
+                if (barracks == null)
+                    barracks = pb;
+            }
         }
     }
 
