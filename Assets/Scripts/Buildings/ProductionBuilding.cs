@@ -8,6 +8,8 @@ public class ProductionBuilding : Building
     [Header("Produktion")]
     public List<UnitData> availableUnits;
     public Transform spawnPoint;
+    [Tooltip("Random positional variance when spawning multiple units")]
+    [SerializeField] private float spawnSpreadRadius = 1.5f;
 
     private Queue<UnitData> productionQueue = new Queue<UnitData>();
     private float productionTimer;
@@ -114,6 +116,12 @@ public class ProductionBuilding : Building
         else
         {
             spawnPos = transform.position;
+        }
+
+        if (spawnSpreadRadius > 0f)
+        {
+            Vector2 offset = Random.insideUnitCircle * spawnSpreadRadius;
+            spawnPos += new Vector3(offset.x, 0f, offset.y);
         }
 
         if (NavMesh.SamplePosition(spawnPos, out NavMeshHit hit, 3f, NavMesh.AllAreas))

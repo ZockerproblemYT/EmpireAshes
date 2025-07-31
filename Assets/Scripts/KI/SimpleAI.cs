@@ -356,11 +356,14 @@ public class SimpleAI : MonoBehaviour
             foreach (var w in workers)
             {
                 if (assigned >= 2) break;
-                if (w != null && w.IsIdle() && !w.IsMoving() && !w.IsBuilding())
-                {
+                if (w == null) continue;
+
+                if (w.IsIdle() && !w.IsMoving() && !w.IsBuilding())
                     w.AssignToConstruction(site);
-                    assigned++;
-                }
+                else
+                    w.QueueConstruction(site);
+
+                assigned++;
             }
             return true;
         }
@@ -479,11 +482,14 @@ public class SimpleAI : MonoBehaviour
             foreach (var w in workers)
             {
                 if (needed <= 0) break;
-                if (w != null && w.IsIdle() && !w.IsMoving() && !w.IsBuilding())
-                {
+                if (w == null) continue;
+
+                if (w.IsIdle() && !w.IsMoving() && !w.IsBuilding())
                     w.AssignToConstruction(site);
-                    needed--;
-                }
+                else
+                    w.QueueConstruction(site);
+
+                needed--;
             }
         }
     }

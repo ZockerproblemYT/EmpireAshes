@@ -688,13 +688,20 @@ private void UpdateWaypointLine()
         OnWaypointsCleared?.Invoke();
     }
 
+    private bool isProcessingJobs = false;
+
     private void ProcessNextJob()
     {
-        if (currentState != State.Idle || jobQueue.Count == 0)
+        if (isProcessingJobs)
             return;
 
-        var job = jobQueue.Dequeue();
-        job?.Invoke();
+        isProcessingJobs = true;
+        while (currentState == State.Idle && jobQueue.Count > 0)
+        {
+            var job = jobQueue.Dequeue();
+            job?.Invoke();
+        }
+        isProcessingJobs = false;
     }
 
     public void QueueConstruction(BuildingConstructionSite site)
