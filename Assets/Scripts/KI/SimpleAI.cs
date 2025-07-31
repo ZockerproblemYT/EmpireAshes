@@ -88,8 +88,8 @@ public class SimpleAI : MonoBehaviour
             }
         }
 
-        // Start attack timer so the AI waits before the first assault
-        attackTimer = attackInterval;
+        // Start with zero so attacks can trigger once enough units are ready
+        attackTimer = 0f;
 
         initialized = true;
         Debug.Log($"🤖 SimpleAI Initialisiert: {faction?.name}, HQ={(hq != null)}, BarracksList={barracksList.Count}, Worker={worker?.unitName}, CombatUnits={combatUnitOptions.Count}");
@@ -172,13 +172,25 @@ public class SimpleAI : MonoBehaviour
 
     private bool TryEnsureHarvest(Unit worker)
     {
-        MetalNode node = FindClosest<MetalNode>(worker.transform.position);
         DropOffBuilding drop = FindClosest<DropOffBuilding>(worker.transform.position);
-        if (node != null && drop != null)
+        if (drop == null)
+            return false;
+
+        MetalNode metal = FindClosest<MetalNode>(worker.transform.position);
+        if (metal != null)
         {
-            worker.StartHarvestCycle(node, drop);
+            worker.StartHarvestCycle(metal, drop);
             return true;
         }
+
+        // Try oil if a refinery is available
+        Refinery refinery = FindClosest<Refinery>(worker.transform.position);
+        if (refinery != null && refinery.IsCompleted)
+        {
+            worker.StartOilCycle(refinery, drop);
+            return true;
+        }
+
         return false;
     }
 
@@ -236,15 +248,18 @@ public class SimpleAI : MonoBehaviour
     private void HandleAttack()
     {
         if (playerHQ == null) return;
-        attackTimer -= Time.deltaTime;
-        if (attackTimer > 0f) return;
-        if (combatUnits.Count < attackGroupSize) return;
 
-        foreach (var c in combatUnits)
+        attackTimer -= Time.deltaTime;
+
+        if (combatUnits.Count >= attackGroupSize && attackTimer <= 0f)
         {
-            c.MoveTo(playerHQ.transform.position, false);
+            foreach (var c in combatUnits)
+            {
+                c.MoveTo(playerHQ.transform.position, false);
+            }
+
+            attackTimer = attackInterval;
         }
-        attackTimer = attackInterval;
     }
 
     private void SearchForTargets()
