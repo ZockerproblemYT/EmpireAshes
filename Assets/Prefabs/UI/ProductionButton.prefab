@@ -293,6 +293,7 @@ MonoBehaviour:
   header: 
   content: 
   unitData: {fileID: 0}
+  buildingData: {fileID: 0}
 --- !u!114 &6943862755951234108
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -308,8 +309,8 @@ MonoBehaviour:
   m_IgnoreLayout: 0
   m_MinWidth: -1
   m_MinHeight: -1
-  m_PreferredWidth: 65
-  m_PreferredHeight: 65
+  m_PreferredWidth: 100
+  m_PreferredHeight: 100
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1

@@ -62,7 +62,7 @@ Transform:
   m_GameObject: {fileID: 3702571563888541682}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 4.11, z: 0.59}
   m_LocalScale: {x: 9, y: 6, z: 9}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -76,7 +76,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3702571563888541682}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 7027636043351174211, guid: ba89a974822b1ee4eba8f38a811e1029, type: 3}
 --- !u!23 &3290144953476363653
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -100,7 +100,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: ad4fe57e8280abc419b6f52b278fc977, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -141,7 +141,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1.1, y: 1, z: 1.1}
+  m_Size: {x: 2, y: 2, z: 2}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &5760224558548882988
 MonoBehaviour:
@@ -176,9 +176,11 @@ MonoBehaviour:
   maxHealth: 100
   uiPrefab: {fileID: 1175801689726128610, guid: 2b064ba488279e8458e377f613d0fd73, type: 3}
   selectionBoxPrefab: {fileID: 7199317963728050502, guid: c3fa9cf4478f011449e8eea14ca4bd4a, type: 3}
+  constructionSite: {fileID: 0}
   availableUnits:
   - {fileID: 11400000, guid: 5e49d2d2db56967429783f3278581e50, type: 2}
   spawnPoint: {fileID: 201575398465465069}
+  spawnSpreadRadius: 1.5
   rallyPointPrefab: {fileID: 7799845591406338313, guid: 360d96c153ae17c44ac54b2c5ef6b19d, type: 3}
   lineRenderer: {fileID: 0}
 --- !u!208 &599040853326499569
