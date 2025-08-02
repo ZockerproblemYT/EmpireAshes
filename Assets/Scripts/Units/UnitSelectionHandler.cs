@@ -348,6 +348,7 @@ public class UnitSelectionHandler : MonoBehaviour
 
             workerUI?.Refresh();
             UnitInfoUI.Instance?.Refresh();
+            SelectedUnitsUI.Instance?.Refresh();
         }
     }
 
@@ -377,6 +378,7 @@ public class UnitSelectionHandler : MonoBehaviour
 
             workerUI?.Refresh();
             UnitInfoUI.Instance?.Refresh();
+            SelectedUnitsUI.Instance?.Refresh();
         }
     }
 
@@ -403,6 +405,20 @@ public class UnitSelectionHandler : MonoBehaviour
         return best;
     }
 
+    public void SelectUnitsByData(UnitData data)
+    {
+        if (data == null)
+            return;
+
+        List<Unit> unitsCopy = new List<Unit>(selectedUnits);
+        DeselectAll();
+        foreach (Unit unit in unitsCopy)
+        {
+            if (unit != null && unit.unitData == data)
+                AddToSelection(unit);
+        }
+    }
+
     void DeselectAll()
     {
         foreach (Unit unit in selectedUnits)
@@ -418,5 +434,6 @@ public class UnitSelectionHandler : MonoBehaviour
         SmithyUpgradeUI.Instance?.Hide();
         workerUI?.Refresh();
         UnitInfoUI.Instance?.Refresh();
+        SelectedUnitsUI.Instance?.Refresh();
     }
 }
