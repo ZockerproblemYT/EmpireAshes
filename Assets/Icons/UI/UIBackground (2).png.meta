@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: b08601bfd6c3c00409d279dff964d95a
+guid: 61d333e7d1f4669468b017362573dbe7
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -110,89 +110,67 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Metal
+      name: UIBackground (2)_0
       rect:
         serializedVersion: 2
-        x: 34
-        y: 55
-        width: 442
-        height: 422
+        x: 0
+        y: 334
+        width: 291
+        height: 413
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 00f05ee6ea7a7ea498a37ac18aa7b30c
-      internalID: 962693371
+      spriteID: 21f7dc3037212284ea7e3609c11efd48
+      internalID: -922160269
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Oil
+      name: UIBackground (2)_1
       rect:
         serializedVersion: 2
-        x: 562
-        y: 56
-        width: 440
-        height: 418
+        x: 293
+        y: 334
+        width: 1168
+        height: 412
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: cc3dff1ae34c02b41bbcf61e42ae891e
-      internalID: 1402102635
+      spriteID: fe5d11100f0c6d149ac75c9a008b484c
+      internalID: 1340601734
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Polymer
+      name: UIBackground (2)_2
       rect:
         serializedVersion: 2
-        x: 1058
-        y: 57
-        width: 442
-        height: 418
+        x: 1462
+        y: 334
+        width: 458
+        height: 413
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: e1e4b60d38a77574fb5e70837583e145
-      internalID: 926675761
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Population
-      rect:
-        serializedVersion: 2
-        x: 1584
-        y: 56
-        width: 464
-        height: 421
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 5f1ce6901a9f34d47a1a07e216c73dc2
-      internalID: 523661226
+      spriteID: 771cb9fe016a7d148a3b5539f6f37835
+      internalID: -1907061660
       vertices: []
       indices: 
       edges: []
@@ -201,7 +179,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: cba11860950f8c4468616e7de8404090
+    spriteID: f29bf05223dfd794895ffe2c5d64f5ae
     internalID: 0
     vertices: []
     indices: 
@@ -209,12 +187,13 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      Metal: 962693371
-      Oil: 1402102635
-      Polymer: 926675761
-      Population: 523661226
+      UIBackground (2)_0: -922160269
+      UIBackground (2)_1: 1340601734
+      UIBackground (2)_2: -1907061660
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

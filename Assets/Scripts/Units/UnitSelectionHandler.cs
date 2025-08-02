@@ -347,6 +347,7 @@ public class UnitSelectionHandler : MonoBehaviour
             Debug.Log($"➕ [Selection] Unit hinzugefügt: {unit.name} | Typ: {unit.GetType()}");
 
             workerUI?.Refresh();
+            UnitInfoUI.Instance?.Refresh();
         }
     }
 
@@ -375,6 +376,7 @@ public class UnitSelectionHandler : MonoBehaviour
                 SmithyUpgradeUI.Instance.ShowFor(smithy);
 
             workerUI?.Refresh();
+            UnitInfoUI.Instance?.Refresh();
         }
     }
 
@@ -415,5 +417,6 @@ public class UnitSelectionHandler : MonoBehaviour
         uiManager?.Hide();
         SmithyUpgradeUI.Instance?.Hide();
         workerUI?.Refresh();
+        UnitInfoUI.Instance?.Refresh();
     }
 }
