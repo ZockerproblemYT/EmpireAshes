@@ -1,5 +1,5 @@
 using UnityEngine;
-
+using UnityEngine.AI;
 using System.Collections.Generic;
 
 public class DropOffBuilding : MonoBehaviour
@@ -19,7 +19,28 @@ public class DropOffBuilding : MonoBehaviour
 
     public Vector3 GetClosestPoint(Vector3 fromPosition)
     {
-        Collider col = GetComponent<Collider>();
-        return col != null ? col.ClosestPoint(fromPosition) : transform.position;
+        Collider[] colliders = GetComponentsInChildren<Collider>();
+        if (colliders == null || colliders.Length == 0)
+            return transform.position;
+
+        Vector3 closestPoint = transform.position;
+        float closestSqrDistance = float.MaxValue;
+
+        foreach (Collider col in colliders)
+        {
+            Vector3 candidate = col.ClosestPoint(fromPosition);
+            float sqrDist = (candidate - fromPosition).sqrMagnitude;
+
+            if (sqrDist < closestSqrDistance)
+            {
+                closestSqrDistance = sqrDist;
+                closestPoint = candidate;
+            }
+        }
+
+        if (NavMesh.SamplePosition(closestPoint, out NavMeshHit hit, 2f, NavMesh.AllAreas))
+            return hit.position;
+
+        return closestPoint;
     }
 }

@@ -171,7 +171,7 @@ public class BuildingConstructionSite : MonoBehaviour
         isCompleted = true;
 
         GameObject built = Instantiate(buildingData.prefab, transform.position, transform.rotation);
-        var buildings = built.GetComponents<Building>();
+        var buildings = built.GetComponentsInChildren<Building>();
         Refinery refinery = built.GetComponent<Refinery>();
 
         Building finalBuilding = null;

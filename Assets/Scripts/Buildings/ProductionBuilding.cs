@@ -111,11 +111,12 @@ public class ProductionBuilding : Building
         }
         else if (spawnPoint != null)
         {
-            spawnPos = spawnPoint.position;
+            spawnPos = GetClosestPointOnBuildingTowards(spawnPoint.position);
         }
         else
         {
-            spawnPos = transform.position;
+            // Fallback: spawn at the edge of the building in its forward direction
+            spawnPos = GetClosestPointOnBuildingTowards(transform.position + transform.forward * 10f);
         }
 
         if (spawnSpreadRadius > 0f)

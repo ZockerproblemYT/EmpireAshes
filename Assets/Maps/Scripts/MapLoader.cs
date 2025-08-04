@@ -49,7 +49,7 @@ public class MapLoader : MonoBehaviour
 
             // HQ spawnen
             GameObject hq = Instantiate(hqPrefab, spawnPos, Quaternion.identity);
-            foreach (var bld in hq.GetComponents<Building>())
+            foreach (var bld in hq.GetComponentsInChildren<Building>())
             {
                 bld.SetOwner(faction);
             }

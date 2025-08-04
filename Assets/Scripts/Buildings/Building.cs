@@ -26,6 +26,7 @@ public class Building : MonoBehaviour
     private BuildingUIController uiInstance;
     private GameObject selectionBoxInstance;
     private float selectionBoxYScale = -1f;
+    private float selectionBoxYPos = 0f;
 
     // Reference to an optional construction site this building belongs to
     [HideInInspector] public BuildingConstructionSite constructionSite;
@@ -175,12 +176,9 @@ public class Building : MonoBehaviour
 
         if (selectionBoxInstance == null)
         {
-            selectionBoxInstance = Instantiate(
-                selectionBoxPrefab,
-                transform.position,
-                Quaternion.identity,
-                transform);
+            selectionBoxInstance = Instantiate(selectionBoxPrefab, transform, false);
             selectionBoxYScale = selectionBoxInstance.transform.localScale.y;
+            selectionBoxYPos = selectionBoxInstance.transform.localPosition.y;
         }
 
         Collider col = GetComponentInChildren<Collider>();
@@ -188,7 +186,11 @@ public class Building : MonoBehaviour
         {
             Bounds b = col.bounds;
             // convert world bounds to local space so scaling isn't affected by parent scale
-            selectionBoxInstance.transform.localPosition = transform.InverseTransformPoint(b.center);
+            Vector3 localCenter = transform.InverseTransformPoint(b.center);
+            selectionBoxInstance.transform.localPosition = new Vector3(
+                localCenter.x,
+                selectionBoxYPos,
+                localCenter.z);
             Vector3 worldSize = new Vector3(b.size.x + 1f, b.size.y, b.size.z + 1f);
             Vector3 lossy = transform.lossyScale;
             if (lossy.x != 0 && lossy.y != 0 && lossy.z != 0)
