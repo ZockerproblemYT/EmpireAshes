@@ -30,6 +30,7 @@ public class Unit : MonoBehaviour
     private NavMeshAgent agent;
     private Faction ownerFaction;
     private LineRenderer lineRenderer;
+    private Animator animator;
     private bool isSelected = false;
 
     private Queue<Vector3> waypoints = new Queue<Vector3>();
@@ -69,6 +70,7 @@ public class Unit : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         health = GetComponent<Health>();
         lineRenderer = GetComponent<LineRenderer>();
+        animator = GetComponent<Animator>();
 
         if (health != null)
             health.OnDeath.AddListener(HandleDeath);
@@ -159,12 +161,14 @@ public class Unit : MonoBehaviour
         currentWaypoint = hit.position;
         currentTarget = hit.position;
         isMoving = true;
+        animator?.SetBool("IsMoving", true);
         agent.isStopped = false;
         agent.ResetPath();
         agent.SetDestination(hit.position);
         UpdateWaypointLine();
 
-        Debug.Log($"[MoveTo] ✅ Ziel gesetzt: {hit.position} (Distanz: {Vector3.Distance(transform.position, hit.position):F2})", this);
+        Debug.Log($"[MoveTo] ✅ Ziel gesetzt: {hit.position} (Distanz: {Vector3.Distance(transform.position, hit.position):F2})"
+, this);
     }
 
 private void HandleMovement()
@@ -193,6 +197,7 @@ private void HandleMovement()
             else
             {
                 isMoving = false;
+                animator?.SetBool("IsMoving", false);
                 currentWaypoint = null;
                 lineRenderer.positionCount = 0;
                 if (jobQueue.Count > 0)
@@ -587,9 +592,11 @@ private void UpdateWaypointLine()
         currentState = State.Harvesting;
         harvestTimer = harvestTime;
         agent.ResetPath();
+        animator?.SetBool("IsHarvesting", true);
     }
     private void FinishHarvest()
     {
+        animator?.SetBool("IsHarvesting", false);
         carriedResources = Mathf.Min(carriedResources + harvestAmount, capacity);
         if (carriedResources >= capacity) GoToDropOff();
         else StartHarvesting();
@@ -604,6 +611,7 @@ private void UpdateWaypointLine()
 
     private void DropOff()
 {
+    animator?.SetBool("IsHarvesting", false);
     var type = isFarmingOil ? ResourceType.Oil : ResourceType.Metal;
 
     if (ownerFaction == null)
@@ -644,6 +652,7 @@ private void UpdateWaypointLine()
 
     private void ConfirmArrivalAtConstruction()
     {
+        animator?.SetBool("IsHarvesting", false);
         hasConfirmedArrival = true;
         currentSite.NotifyWorkerArrived(this);
         currentState = State.Building;
@@ -653,6 +662,9 @@ private void UpdateWaypointLine()
     public void CancelWorkerJob(bool clearQueue = true, bool processQueue = true)
     {
         agent.ResetPath();
+        animator?.SetBool("IsHarvesting", false);
+        isMoving = false;
+        animator?.SetBool("IsMoving", false);
         currentNode = null;
         currentDropOff = null;
         currentRefinery = null;
@@ -775,14 +787,14 @@ private void UpdateWaypointLine()
 
     private void SetWaypointColor(GameObject flag)
     {
-        if (ownerFaction != null && flag.TryGetComponent<MeshRenderer>(out var mr))
+        if (ownerFaction != null && flag.TryGetComponent<MeshRenderer>(out MeshRenderer mr))
             mr.material.color = ownerFaction.factionColor;
     }
 
     public void SetOwner(Faction faction)
     {
         ownerFaction = faction;
-        if (selectionCircle && selectionCircle.TryGetComponent<SpriteRenderer>(out var rend))
+        if (selectionCircle && selectionCircle.TryGetComponent<SpriteRenderer>(out SpriteRenderer rend))
             rend.color = faction.factionColor;
         Renderer[] renderers = GetComponentsInChildren<Renderer>();
         foreach (Renderer r in renderers)
@@ -826,7 +838,7 @@ private void UpdateWaypointLine()
     public void SetTarget(Unit enemy)
     {
         // avoid resetting the current attack state if we already target this unit
-        if (enemy == null || !IsEnemy(enemy) || enemy == targetEnemy)
+        if (enemy is null || !IsEnemy(enemy) || enemy == targetEnemy)
             return;
 
         AttackUnit(enemy);
