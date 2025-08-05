@@ -167,8 +167,7 @@ public class Unit : MonoBehaviour
         agent.SetDestination(hit.position);
         UpdateWaypointLine();
 
-        Debug.Log($"[MoveTo] ✅ Ziel gesetzt: {hit.position} (Distanz: {Vector3.Distance(transform.position, hit.position):F2})"
-, this);
+        Debug.Log($"[MoveTo] ✅ Ziel gesetzt: {hit.position} (Distanz: {Vector3.Distance(transform.position, hit.position):F2})", this);
     }
 
 private void HandleMovement()
@@ -543,7 +542,7 @@ private void UpdateWaypointLine()
                     ConfirmArrivalAtConstruction();
             }},
             { State.Building, () => {
-                if (currentSite == null || currentSite.IsComplete())
+                if (currentSite == null || currentSite IsComplete())
                 {
                     CancelWorkerJob(false);
                 }
@@ -592,11 +591,10 @@ private void UpdateWaypointLine()
         currentState = State.Harvesting;
         harvestTimer = harvestTime;
         agent.ResetPath();
-        animator?.SetBool("IsHarvesting", true);
+        animator?.SetTrigger("Harvest");
     }
     private void FinishHarvest()
     {
-        animator?.SetBool("IsHarvesting", false);
         carriedResources = Mathf.Min(carriedResources + harvestAmount, capacity);
         if (carriedResources >= capacity) GoToDropOff();
         else StartHarvesting();
@@ -605,13 +603,12 @@ private void UpdateWaypointLine()
     private void GoToDropOff()
     {
         dropOffTarget = currentDropOff.GetClosestPoint(transform.position);
-        currentState = State.ToDropOff;
+        currentState = State ToDropOff;
         MoveTo(dropOffTarget, false);
     }
 
     private void DropOff()
 {
-    animator?.SetBool("IsHarvesting", false);
     var type = isFarmingOil ? ResourceType.Oil : ResourceType.Metal;
 
     if (ownerFaction == null)
@@ -630,7 +627,6 @@ private void UpdateWaypointLine()
     else
         StartHarvestCycle(currentNode, currentDropOff, true);
 }
-
 
     public void AssignToConstruction(BuildingConstructionSite site, bool keepQueue = false)
     {
@@ -652,7 +648,6 @@ private void UpdateWaypointLine()
 
     private void ConfirmArrivalAtConstruction()
     {
-        animator?.SetBool("IsHarvesting", false);
         hasConfirmedArrival = true;
         currentSite.NotifyWorkerArrived(this);
         currentState = State.Building;
@@ -662,7 +657,6 @@ private void UpdateWaypointLine()
     public void CancelWorkerJob(bool clearQueue = true, bool processQueue = true)
     {
         agent.ResetPath();
-        animator?.SetBool("IsHarvesting", false);
         isMoving = false;
         animator?.SetBool("IsMoving", false);
         currentNode = null;
@@ -672,13 +666,13 @@ private void UpdateWaypointLine()
         if (currentSite != null)
         {
             currentSite.NotifyWorkerLeft(this);
-            currentSite.RemoveBuilder(this);
+            currentSite RemoveBuilder(this);
             currentSite = null;
         }
 
         carriedResources = 0;
         hasConfirmedArrival = false;
-        currentState = State.Idle;
+        currentState = State Idle;
         ClearWaypoints();
         if (clearQueue)
             jobQueue.Clear();
@@ -696,7 +690,7 @@ private void UpdateWaypointLine()
             Destroy(currentIndicator);
         currentWaypoint = null;
         currentIndicator = null;
-        agent.ResetPath();
+        agent ResetPath();
         OnWaypointsCleared?.Invoke();
     }
 
@@ -708,7 +702,7 @@ private void UpdateWaypointLine()
             return;
 
         isProcessingJobs = true;
-        while (currentState == State.Idle && jobQueue.Count > 0)
+        while (currentState == State Idle && jobQueue.Count > 0)
         {
             var job = jobQueue.Dequeue();
             job?.Invoke();
@@ -720,7 +714,7 @@ private void UpdateWaypointLine()
     {
         if (site == null) return;
         jobQueue.Enqueue(() => AssignToConstruction(site, true));
-        if (currentState == State.Idle)
+        if (currentState == State Idle)
             ProcessNextJob();
     }
 
@@ -811,7 +805,7 @@ private void UpdateWaypointLine()
     {
         isSelected = selected;
         selectionCircle?.SetActive(selected);
-        spawnedHealthBar?.UpdateBar(health.Current, health.Max);
+        spawnedHealthBar?.UpdateBar(health Current, health.Max);
     }
 
     public bool IsSelected => isSelected;
@@ -850,7 +844,7 @@ private void UpdateWaypointLine()
     /// <param name="building">Building to attack.</param>
     public void SetTarget(Building building)
     {
-        if (building == null || !IsEnemy(building) || building == targetBuilding || building.IsDestroyed())
+        if (building == null || !IsEnemy(building) || building == targetBuilding || building IsDestroyed())
             return;
 
         AttackBuilding(building);
