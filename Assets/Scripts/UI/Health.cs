@@ -72,7 +72,24 @@ public class Health : MonoBehaviour
     {
         Debug.Log($"[Health] ☠️ Tod von: {gameObject.name}", this);
         OnDeath.Invoke();
-        Destroy(gameObject);
+
+        var animator = GetComponent<Animator>();
+        if (animator != null)
+        {
+            string[] deaths = { "dying_backwards", "dying_normal" };
+            string chosen = deaths[Random.Range(0, deaths.Length)];
+            animator.Play(chosen);
+
+            float length = 0f;
+            var clips = animator.GetCurrentAnimatorClipInfo(0);
+            if (clips.Length > 0)
+                length = clips[0].clip.length;
+            Destroy(gameObject, length);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
     private float CalculateDamageMultiplier(DamageType dmg, ArmorType armor)

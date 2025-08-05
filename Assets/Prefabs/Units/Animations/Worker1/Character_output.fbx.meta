@@ -373,13 +373,13 @@ ModelImporter:
       scale: {x: 0.99999994, y: 1.0000008, z: 1.0000005}
     - name: LeftHand
       parentName: LeftForeArm
-      position: {x: 0.0000000023841857, y: 0.2125538, z: 0.00000013709068}
-      rotation: {x: 0.079496495, y: -0.10709185, z: -0.16733262, w: 0.9768375}
+      position: {x: -0.000033817258, y: 0.21262898, z: -0.00002124439}
+      rotation: {x: 0.06483835, y: -0.11655234, z: -0.03839821, w: 0.9903217}
       scale: {x: 0.9999998, y: 1.0000004, z: 1.0000005}
     - name: RightShoulder
       parentName: Spine
-      position: {x: 0.03440117, y: 0.021764377, z: -0.006460357}
-      rotation: {x: -0.52573234, y: -0.5687555, z: 0.4617033, w: -0.43238032}
+      position: {x: 0.034406014, y: 0.021786895, z: -0.006456149}
+      rotation: {x: -0.52573234, y: -0.5687556, z: 0.46170315, w: -0.4323805}
       scale: {x: 1.0000004, y: 1.0000004, z: 1.0000005}
     - name: RightArm
       parentName: RightShoulder
@@ -388,13 +388,13 @@ ModelImporter:
       scale: {x: 1.0000001, y: 1, z: 0.9999998}
     - name: RightForeArm
       parentName: RightArm
-      position: {x: -0.0000000667572, y: 0.25089195, z: -0.000000023841856}
-      rotation: {x: -0.031123295, y: 0.054877814, z: 0.0062302174, w: 0.99798846}
+      position: {x: 0.000002434477, y: 0.25089875, z: -0.0000027469366}
+      rotation: {x: -0.031123262, y: 0.054877795, z: 0.006229581, w: 0.99798846}
       scale: {x: 0.9999998, y: 0.99999994, z: 0.9999998}
     - name: RightHand
       parentName: RightForeArm
-      position: {x: 0.000000005960464, y: 0.2194425, z: 0.000000035762785}
-      rotation: {x: 0.06859325, y: 0.08587404, z: 0.1303645, w: 0.9853556}
+      position: {x: -0.000004942996, y: 0.21960784, z: -0.00017879908}
+      rotation: {x: 0.056797747, y: 0.094092086, z: 0.00063404755, w: 0.9939418}
       scale: {x: 0.99999994, y: 1.0000008, z: 1.0000006}
     - name: neck
       parentName: Spine
@@ -409,7 +409,7 @@ ModelImporter:
     - name: head_end
       parentName: Head
       position: {x: 1.7089664e-10, y: 0.20210426, z: -0.10449503}
-      rotation: {x: -0.23633416, y: -0.000000042953083, z: -0.000000014895089, w: 0.9716718}
+      rotation: {x: -0.23633417, y: -0.000000042953086, z: -0.00000001489509, w: 0.9716719}
       scale: {x: 1, y: 0.99999994, z: 1.0000001}
     - name: headfront
       parentName: Head

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buildingName: HQ
   buildingType: 1
-  prefab: {fileID: 3854866034804258245, guid: d10cba51e78183342b3e8e4b6b47eeb6, type: 3}
+  prefab: {fileID: 8288285943875933194, guid: d10cba51e78183342b3e8e4b6b47eeb6, type: 3}
   ghostPrefab: {fileID: 3702571563888541682, guid: dc2a1d7c36a328b428d76d4dffa7b50b, type: 3}
   constructionPrefab: {fileID: 3702571563888541682, guid: 0c08ea2357a6477468334fa90c43b69f, type: 3}
   icon: {fileID: 21300000, guid: c2e709437a303c2459187ef0cf0cdeb2, type: 3}

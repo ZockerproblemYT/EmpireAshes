@@ -54,7 +54,7 @@ public class Unit : MonoBehaviour
     private float harvestTimer = 0f;
     private int carriedResources = 0;
     private bool isFarmingOil = false;
-    private bool hasConfirmedArrival = false;
+       private bool hasConfirmedArrival = false;
     private bool isMoving = false;
     private Vector3 currentTarget;
 
@@ -71,6 +71,7 @@ public class Unit : MonoBehaviour
         health = GetComponent<Health>();
         lineRenderer = GetComponent<LineRenderer>();
         animator = GetComponent<Animator>();
+        animator?.SetBool("isMoving", false);
 
         if (health != null)
             health.OnDeath.AddListener(HandleDeath);
@@ -161,7 +162,13 @@ public class Unit : MonoBehaviour
         currentWaypoint = hit.position;
         currentTarget = hit.position;
         isMoving = true;
-        animator?.SetBool("IsMoving", true);
+        animator?.SetBool("isMoving", true);
+
+        if (currentState == State.ToDropOff || carriedResources > 0)
+            animator?.Play("Walking");
+        else
+            animator?.Play("Running");
+
         agent.isStopped = false;
         agent.ResetPath();
         agent.SetDestination(hit.position);
@@ -196,7 +203,7 @@ private void HandleMovement()
             else
             {
                 isMoving = false;
-                animator?.SetBool("IsMoving", false);
+                animator?.SetBool("isMoving", false);
                 currentWaypoint = null;
                 lineRenderer.positionCount = 0;
                 if (jobQueue.Count > 0)
@@ -542,7 +549,7 @@ private void UpdateWaypointLine()
                     ConfirmArrivalAtConstruction();
             }},
             { State.Building, () => {
-                if (currentSite == null || currentSite IsComplete())
+                if (currentSite == null || currentSite.IsComplete())
                 {
                     CancelWorkerJob(false);
                 }
@@ -591,6 +598,8 @@ private void UpdateWaypointLine()
         currentState = State.Harvesting;
         harvestTimer = harvestTime;
         agent.ResetPath();
+        isMoving = false;
+        animator?.SetBool("isMoving", false);
         animator?.SetTrigger("Harvest");
     }
     private void FinishHarvest()
@@ -603,7 +612,7 @@ private void UpdateWaypointLine()
     private void GoToDropOff()
     {
         dropOffTarget = currentDropOff.GetClosestPoint(transform.position);
-        currentState = State ToDropOff;
+        currentState = State.ToDropOff;
         MoveTo(dropOffTarget, false);
     }
 
@@ -658,7 +667,7 @@ private void UpdateWaypointLine()
     {
         agent.ResetPath();
         isMoving = false;
-        animator?.SetBool("IsMoving", false);
+        animator?.SetBool("isMoving", false);
         currentNode = null;
         currentDropOff = null;
         currentRefinery = null;
@@ -666,13 +675,13 @@ private void UpdateWaypointLine()
         if (currentSite != null)
         {
             currentSite.NotifyWorkerLeft(this);
-            currentSite RemoveBuilder(this);
+            currentSite.RemoveBuilder(this);
             currentSite = null;
         }
 
         carriedResources = 0;
         hasConfirmedArrival = false;
-        currentState = State Idle;
+        currentState = State.Idle;
         ClearWaypoints();
         if (clearQueue)
             jobQueue.Clear();
@@ -690,7 +699,7 @@ private void UpdateWaypointLine()
             Destroy(currentIndicator);
         currentWaypoint = null;
         currentIndicator = null;
-        agent ResetPath();
+        agent.ResetPath();
         OnWaypointsCleared?.Invoke();
     }
 
@@ -702,7 +711,7 @@ private void UpdateWaypointLine()
             return;
 
         isProcessingJobs = true;
-        while (currentState == State Idle && jobQueue.Count > 0)
+        while (currentState == State.Idle && jobQueue.Count > 0)
         {
             var job = jobQueue.Dequeue();
             job?.Invoke();
@@ -714,7 +723,7 @@ private void UpdateWaypointLine()
     {
         if (site == null) return;
         jobQueue.Enqueue(() => AssignToConstruction(site, true));
-        if (currentState == State Idle)
+        if (currentState == State.Idle)
             ProcessNextJob();
     }
 
@@ -805,7 +814,7 @@ private void UpdateWaypointLine()
     {
         isSelected = selected;
         selectionCircle?.SetActive(selected);
-        spawnedHealthBar?.UpdateBar(health Current, health.Max);
+        spawnedHealthBar?.UpdateBar(health.Current, health.Max);
     }
 
     public bool IsSelected => isSelected;
@@ -844,7 +853,7 @@ private void UpdateWaypointLine()
     /// <param name="building">Building to attack.</param>
     public void SetTarget(Building building)
     {
-        if (building == null || !IsEnemy(building) || building == targetBuilding || building IsDestroyed())
+        if (building == null || !IsEnemy(building) || building == targetBuilding || building.IsDestroyed())
             return;
 
         AttackBuilding(building);
@@ -884,6 +893,9 @@ private void UpdateWaypointLine()
     {
         if (ownerFaction != null && unitData != null)
             ResourceManager.Instance.AddResources(ownerFaction, 0, 0, unitData.costPopulation);
+
+        agent.isStopped = true;
+        animator?.SetBool("isMoving", false);
 
         ClearWaypoints();
     }

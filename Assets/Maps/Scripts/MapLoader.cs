@@ -55,7 +55,17 @@ public class MapLoader : MonoBehaviour
             }
 
             // Worker spawnen
-            Vector3 workerSpawn = spawnPos + new Vector3(3f, 0f, 0f);
+            Vector3 workerSpawn;
+            Collider hqCollider = hq.GetComponent<Collider>();
+            if (hqCollider != null)
+            {
+                Vector3 target = hq.transform.position + hq.transform.forward * 10f;
+                workerSpawn = hqCollider.ClosestPoint(target);
+            }
+            else
+            {
+                workerSpawn = spawnPos + hq.transform.forward * 3f;
+            }
             GameObject workerGO = Instantiate(workerPrefab, workerSpawn, Quaternion.identity);
             var unit = workerGO.GetComponent<Unit>();
             if (unit != null) unit.SetOwner(faction);

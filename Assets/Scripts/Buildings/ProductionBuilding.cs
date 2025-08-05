@@ -215,7 +215,12 @@ public class ProductionBuilding : Building
         if (col == null)
             return spawnPoint != null ? spawnPoint.position : transform.position;
 
-        Vector3 dir = (target - transform.position).normalized;
+        Vector3 dir = target - transform.position;
+        if (dir.sqrMagnitude < 0.001f)
+            dir = transform.forward;
+        else
+            dir = dir.normalized;
+
         Vector3 outsidePoint = transform.position + dir * 10f;
         return col.ClosestPoint(outsidePoint);
     }
