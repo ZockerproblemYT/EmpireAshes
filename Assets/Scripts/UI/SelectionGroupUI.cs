@@ -16,36 +16,82 @@ public class SelectionGroupUI : MonoBehaviour
             return;
         }
         Instance = this;
+
+        if (iconContainer == null)
+            iconContainer = transform;
+
+        // hide by default until we have something to show
+        gameObject.SetActive(false);
     }
 
-    public void UpdateSelectionUI(List<Unit> selectedUnits)
+    public void UpdateSelectionUI(List<Unit> selectedUnits, List<Building> selectedBuildings)
     {
-        if (iconContainer == null || iconPrefab == null)
+        if (iconContainer == null)
+            iconContainer = transform;
+
+        bool hasSelection = (selectedUnits != null && selectedUnits.Count > 0) ||
+                            (selectedBuildings != null && selectedBuildings.Count > 0);
+
+        gameObject.SetActive(hasSelection);
+
+        if (!hasSelection || iconPrefab == null)
             return;
 
         foreach (Transform child in iconContainer)
             Destroy(child.gameObject);
 
-        Dictionary<UnitData, List<Unit>> grouped = new();
-
+        Dictionary<UnitData, List<Unit>> unitGroups = new Dictionary<UnitData, List<Unit>>();
         foreach (var unit in selectedUnits)
         {
             if (unit == null || unit.unitData == null)
                 continue;
-            if (!grouped.TryGetValue(unit.unitData, out var list))
+
+            if (!unitGroups.TryGetValue(unit.unitData, out var list))
             {
                 list = new List<Unit>();
-                grouped[unit.unitData] = list;
+                unitGroups[unit.unitData] = list;
             }
             list.Add(unit);
         }
 
-        foreach (var kvp in grouped)
+        Dictionary<BuildingData, List<Building>> buildingGroups = new Dictionary<BuildingData, List<Building>>();
+        foreach (var building in selectedBuildings)
+        {
+            if (building == null)
+                continue;
+
+            TooltipTrigger trigger = building.GetComponent<TooltipTrigger>();
+            BuildingData data = trigger != null ? trigger.buildingData : null;
+            if (data == null)
+                continue;
+
+            if (!buildingGroups.TryGetValue(data, out var list))
+            {
+                list = new List<Building>();
+                buildingGroups[data] = list;
+            }
+            list.Add(building);
+        }
+
+        foreach (var kvp in unitGroups)
         {
             SelectionGroupIcon icon = Instantiate(iconPrefab, iconContainer);
             icon.Setup(kvp.Key.unitIcon, kvp.Value.Count, () =>
             {
-                UnitSelectionHandler.Instance?.OverrideSelection(kvp.Value);
+                var handler = UnitSelectionHandler.Instance;
+                if (handler != null)
+                    handler.OverrideSelection(kvp.Value, null);
+            });
+        }
+
+        foreach (var kvp in buildingGroups)
+        {
+            SelectionGroupIcon icon = Instantiate(iconPrefab, iconContainer);
+            icon.Setup(kvp.Key.icon, kvp.Value.Count, () =>
+            {
+                var handler = UnitSelectionHandler.Instance;
+                if (handler != null)
+                    handler.OverrideSelection(null, kvp.Value);
             });
         }
     }

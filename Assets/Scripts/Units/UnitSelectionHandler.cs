@@ -18,6 +18,7 @@ public class UnitSelectionHandler : MonoBehaviour
     private ProductionUIManager uiManager;
     private WorkerUI workerUI;
     private bool startedOnUI = false;
+    private SelectionGroupUI selectionGroupUI;
 
     private readonly List<Unit> selectedUnits = new List<Unit>();
     private readonly List<Building> selectedBuildings = new List<Building>();
@@ -42,6 +43,7 @@ public class UnitSelectionHandler : MonoBehaviour
         selectionBox.gameObject.SetActive(false);
         uiManager = FindAnyObjectByType<ProductionUIManager>();
         workerUI = FindAnyObjectByType<WorkerUI>();
+        selectionGroupUI = SelectionGroupUI.Instance ?? FindObjectOfType<SelectionGroupUI>(true);
 
         if (uiManager == null)
             Debug.LogWarning("⚠️ Kein ProductionUIManager gefunden!");
@@ -72,7 +74,8 @@ public class UnitSelectionHandler : MonoBehaviour
             if (!Input.GetKey(KeyCode.LeftShift) && !isPlacing)
             {
                 DeselectAll();
-                uiManager?.Hide();
+                if (uiManager != null)
+                    uiManager.Hide();
             }
         }
 
@@ -269,8 +272,11 @@ public class UnitSelectionHandler : MonoBehaviour
 
         if (canceled)
         {
-            workerUI?.Refresh();
-            uiManager?.Hide();
+            if (workerUI != null)
+                workerUI.Refresh();
+
+            if (uiManager != null)
+                uiManager.Hide();
         }
     }
 
@@ -337,7 +343,9 @@ public class UnitSelectionHandler : MonoBehaviour
         if (unit == null)
             return;
 
-        Faction playerFaction = MatchManager.Instance?.PlayerFaction;
+        Faction playerFaction = null;
+        if (MatchManager.Instance != null)
+            playerFaction = MatchManager.Instance.PlayerFaction;
         if (playerFaction != null && unit.GetOwnerFaction() != playerFaction)
             return;
 
@@ -348,10 +356,17 @@ public class UnitSelectionHandler : MonoBehaviour
         unit.SetSelected(true);
         Debug.Log($"➕ [Selection] Unit hinzugefügt: {unit.name} | Typ: {unit.GetType()}");
 
-        workerUI?.Refresh();
-        UnitInfoUI.Instance?.Refresh();
-        SelectedUnitsUI.Instance?.Refresh();
-        SelectionGroupUI.Instance?.UpdateSelectionUI(selectedUnits);
+        if (workerUI != null)
+            workerUI.Refresh();
+
+        if (UnitInfoUI.Instance != null)
+            UnitInfoUI.Instance.Refresh();
+
+        if (SelectedUnitsUI.Instance != null)
+            SelectedUnitsUI.Instance.Refresh();
+
+        if (selectionGroupUI != null)
+            selectionGroupUI.UpdateSelectionUI(selectedUnits, selectedBuildings);
     }
 
     void AddToSelection(Building building, bool showHP = true)
@@ -359,7 +374,9 @@ public class UnitSelectionHandler : MonoBehaviour
         if (building == null)
             return;
 
-        Faction playerFaction = MatchManager.Instance?.PlayerFaction;
+        Faction playerFaction = null;
+        if (MatchManager.Instance != null)
+            playerFaction = MatchManager.Instance.PlayerFaction;
         if (playerFaction != null && building.GetOwner() != playerFaction)
             return;
 
@@ -378,9 +395,17 @@ public class UnitSelectionHandler : MonoBehaviour
             if (smithy != null && SmithyUpgradeUI.Instance != null)
                 SmithyUpgradeUI.Instance.ShowFor(smithy);
 
-            workerUI?.Refresh();
-            UnitInfoUI.Instance?.Refresh();
-            SelectedUnitsUI.Instance?.Refresh();
+            if (workerUI != null)
+                workerUI.Refresh();
+
+            if (UnitInfoUI.Instance != null)
+                UnitInfoUI.Instance.Refresh();
+
+            if (SelectedUnitsUI.Instance != null)
+                SelectedUnitsUI.Instance.Refresh();
+
+            if (selectionGroupUI != null)
+                selectionGroupUI.UpdateSelectionUI(selectedUnits, selectedBuildings);
         }
     }
 
@@ -421,14 +446,21 @@ public class UnitSelectionHandler : MonoBehaviour
         }
     }
 
-    public void OverrideSelection(List<Unit> units)
+    public void OverrideSelection(List<Unit> units, List<Building> buildings)
     {
-        if (units == null)
-            return;
-
         DeselectAll();
-        foreach (Unit unit in units)
-            AddToSelection(unit);
+
+        if (units != null)
+        {
+            foreach (Unit unit in units)
+                AddToSelection(unit);
+        }
+
+        if (buildings != null)
+        {
+            foreach (Building building in buildings)
+                AddToSelection(building);
+        }
     }
 
     void DeselectAll()
@@ -442,11 +474,23 @@ public class UnitSelectionHandler : MonoBehaviour
         selectedBuildings.Clear();
 
         Debug.Log("🧹 Auswahl geleert.");
-        uiManager?.Hide();
-        SmithyUpgradeUI.Instance?.Hide();
-        workerUI?.Refresh();
-        UnitInfoUI.Instance?.Refresh();
-        SelectedUnitsUI.Instance?.Refresh();
-        SelectionGroupUI.Instance?.UpdateSelectionUI(selectedUnits);
+
+        if (uiManager != null)
+            uiManager.Hide();
+
+        if (SmithyUpgradeUI.Instance != null)
+            SmithyUpgradeUI.Instance.Hide();
+
+        if (workerUI != null)
+            workerUI.Refresh();
+
+        if (UnitInfoUI.Instance != null)
+            UnitInfoUI.Instance.Refresh();
+
+        if (SelectedUnitsUI.Instance != null)
+            SelectedUnitsUI.Instance.Refresh();
+
+        if (selectionGroupUI != null)
+            selectionGroupUI.UpdateSelectionUI(selectedUnits, selectedBuildings);
     }
 }
