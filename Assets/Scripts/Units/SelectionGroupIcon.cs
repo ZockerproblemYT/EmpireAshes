@@ -9,10 +9,10 @@ public class SelectionGroupIcon : MonoBehaviour
     public TextMeshProUGUI countText;
     public Button button;
 
-    public void Setup(UnitData data, int count, Action onClick)
+    public void Setup(Sprite icon, int count, Action onClick)
     {
-        if (iconImage != null && data != null)
-            iconImage.sprite = data.unitIcon;
+        if (iconImage != null && icon != null)
+            iconImage.sprite = icon;
 
         if (countText != null)
             countText.text = $"x{count}";

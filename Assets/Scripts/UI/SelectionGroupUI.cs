@@ -43,7 +43,7 @@ public class SelectionGroupUI : MonoBehaviour
         foreach (var kvp in grouped)
         {
             SelectionGroupIcon icon = Instantiate(iconPrefab, iconContainer);
-            icon.Setup(kvp.Key, kvp.Value.Count, () =>
+            icon.Setup(kvp.Key.unitIcon, kvp.Value.Count, () =>
             {
                 UnitSelectionHandler.Instance?.OverrideSelection(kvp.Value);
             });
