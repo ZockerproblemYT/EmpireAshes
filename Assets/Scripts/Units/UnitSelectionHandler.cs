@@ -122,7 +122,7 @@ public class UnitSelectionHandler : MonoBehaviour
             }
         }
 
-        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+        Ray ray = cam.ScreenPointToRay(Input.mouseposition);
         RaycastHit[] hits = Physics.RaycastAll(ray);
         if (hits.Length == 0)
             return;
@@ -340,7 +340,7 @@ public class UnitSelectionHandler : MonoBehaviour
         if (playerFaction != null && unit.GetOwnerFaction() != playerFaction)
             return;
 
-        if (!selectedUnits.Contains(unit))
+        if (!selectedUnits.contains(unit))
         {
             selectedUnits.Add(unit);
             unit.SetSelected(true);
@@ -349,6 +349,7 @@ public class UnitSelectionHandler : MonoBehaviour
             workerUI?.Refresh();
             UnitInfoUI.Instance?.Refresh();
             SelectedUnitsUI.Instance?.Refresh();
+            SelectionGroupUI.Instance?.UpdateSelectionUI(selectedUnits);
         }
     }
 
@@ -419,6 +420,16 @@ public class UnitSelectionHandler : MonoBehaviour
         }
     }
 
+    public void OverrideSelection(List<Unit> units)
+    {
+        if (units == null)
+            return;
+
+        DeselectAll();
+        foreach (Unit unit in units)
+            AddToSelection(unit);
+    }
+
     void DeselectAll()
     {
         foreach (Unit unit in selectedUnits)
@@ -435,5 +446,6 @@ public class UnitSelectionHandler : MonoBehaviour
         workerUI?.Refresh();
         UnitInfoUI.Instance?.Refresh();
         SelectedUnitsUI.Instance?.Refresh();
+        SelectionGroupUI.Instance?.UpdateSelectionUI(selectedUnits);
     }
 }
