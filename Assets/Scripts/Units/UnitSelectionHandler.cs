@@ -122,7 +122,8 @@ public class UnitSelectionHandler : MonoBehaviour
             }
         }
 
-        Ray ray = cam.ScreenPointToRay(Input.mouseposition);
+        Vector3 mousePosition = Input.mousePosition;
+        Ray ray = cam.ScreenPointToRay(mousePosition);
         RaycastHit[] hits = Physics.RaycastAll(ray);
         if (hits.Length == 0)
             return;
@@ -340,17 +341,17 @@ public class UnitSelectionHandler : MonoBehaviour
         if (playerFaction != null && unit.GetOwnerFaction() != playerFaction)
             return;
 
-        if (!selectedUnits.contains(unit))
-        {
-            selectedUnits.Add(unit);
-            unit.SetSelected(true);
-            Debug.Log($"➕ [Selection] Unit hinzugefügt: {unit.name} | Typ: {unit.GetType()}");
+        if (selectedUnits.Contains(unit))
+            return;
 
-            workerUI?.Refresh();
-            UnitInfoUI.Instance?.Refresh();
-            SelectedUnitsUI.Instance?.Refresh();
-            SelectionGroupUI.Instance?.UpdateSelectionUI(selectedUnits);
-        }
+        selectedUnits.Add(unit);
+        unit.SetSelected(true);
+        Debug.Log($"➕ [Selection] Unit hinzugefügt: {unit.name} | Typ: {unit.GetType()}");
+
+        workerUI?.Refresh();
+        UnitInfoUI.Instance?.Refresh();
+        SelectedUnitsUI.Instance?.Refresh();
+        SelectionGroupUI.Instance?.UpdateSelectionUI(selectedUnits);
     }
 
     void AddToSelection(Building building, bool showHP = true)

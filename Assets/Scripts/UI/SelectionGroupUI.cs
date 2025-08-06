@@ -5,7 +5,7 @@ public class SelectionGroupUI : MonoBehaviour
 {
     public static SelectionGroupUI Instance { get; private set; }
 
-    public GameObject iconPrefab;
+    public SelectionGroupIcon iconPrefab;
     public Transform iconContainer;
 
     void Awake()
@@ -42,15 +42,11 @@ public class SelectionGroupUI : MonoBehaviour
 
         foreach (var kvp in grouped)
         {
-            var go = Instantiate(iconPrefab, iconContainer);
-            var icon = go.GetComponent<SelectionGroupIcon>();
-            if (icon != null)
+            SelectionGroupIcon icon = Instantiate(iconPrefab, iconContainer);
+            icon.Setup(kvp.Key, kvp.Value.Count, () =>
             {
-                icon.Setup(kvp.Key, kvp.Value.Count, () =>
-                {
-                    UnitSelectionHandler.Instance?.OverrideSelection(kvp.Value);
-                });
-            }
+                UnitSelectionHandler.Instance?.OverrideSelection(kvp.Value);
+            });
         }
     }
 }
