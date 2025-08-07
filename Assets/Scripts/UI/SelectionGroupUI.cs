@@ -76,6 +76,7 @@ public class SelectionGroupUI : MonoBehaviour
         foreach (var kvp in unitGroups)
         {
             SelectionGroupIcon icon = Instantiate(iconPrefab, iconContainer);
+            icon.gameObject.SetActive(true);
             icon.Setup(kvp.Key.unitIcon, kvp.Value.Count, () =>
             {
                 var handler = UnitSelectionHandler.Instance;
@@ -87,6 +88,7 @@ public class SelectionGroupUI : MonoBehaviour
         foreach (var kvp in buildingGroups)
         {
             SelectionGroupIcon icon = Instantiate(iconPrefab, iconContainer);
+            icon.gameObject.SetActive(true);
             icon.Setup(kvp.Key.icon, kvp.Value.Count, () =>
             {
                 var handler = UnitSelectionHandler.Instance;
