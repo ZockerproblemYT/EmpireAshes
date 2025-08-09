@@ -20,6 +20,11 @@ public class SelectionGroupUI : MonoBehaviour
         if (iconContainer == null)
             iconContainer = transform;
 
+        // the prefab is kept as a hidden template so it must not be
+        // destroyed when clearing the container
+        if (iconPrefab != null)
+            iconPrefab.gameObject.SetActive(false);
+
         // hide by default until we have something to show
         gameObject.SetActive(false);
     }
@@ -38,39 +43,50 @@ public class SelectionGroupUI : MonoBehaviour
             return;
 
         foreach (Transform child in iconContainer)
+        {
+            // keep the prefab template so future updates can instantiate it
+            if (iconPrefab != null && child == iconPrefab.transform)
+                continue;
             Destroy(child.gameObject);
+        }
 
         Dictionary<UnitData, List<Unit>> unitGroups = new Dictionary<UnitData, List<Unit>>();
-        foreach (var unit in selectedUnits)
+        if (selectedUnits != null)
         {
-            if (unit == null || unit.unitData == null)
-                continue;
-
-            if (!unitGroups.TryGetValue(unit.unitData, out var list))
+            foreach (var unit in selectedUnits)
             {
-                list = new List<Unit>();
-                unitGroups[unit.unitData] = list;
+                if (unit == null || unit.unitData == null)
+                    continue;
+
+                if (!unitGroups.TryGetValue(unit.unitData, out var list))
+                {
+                    list = new List<Unit>();
+                    unitGroups[unit.unitData] = list;
+                }
+                list.Add(unit);
             }
-            list.Add(unit);
         }
 
         Dictionary<BuildingData, List<Building>> buildingGroups = new Dictionary<BuildingData, List<Building>>();
-        foreach (var building in selectedBuildings)
+        if (selectedBuildings != null)
         {
-            if (building == null)
-                continue;
-
-            TooltipTrigger trigger = building.GetComponent<TooltipTrigger>();
-            BuildingData data = trigger != null ? trigger.buildingData : null;
-            if (data == null)
-                continue;
-
-            if (!buildingGroups.TryGetValue(data, out var list))
+            foreach (var building in selectedBuildings)
             {
-                list = new List<Building>();
-                buildingGroups[data] = list;
+                if (building == null)
+                    continue;
+
+                TooltipTrigger trigger = building.GetComponent<TooltipTrigger>();
+                BuildingData data = trigger != null ? trigger.buildingData : null;
+                if (data == null)
+                    continue;
+
+                if (!buildingGroups.TryGetValue(data, out var list))
+                {
+                    list = new List<Building>();
+                    buildingGroups[data] = list;
+                }
+                list.Add(building);
             }
-            list.Add(building);
         }
 
         foreach (var kvp in unitGroups)
